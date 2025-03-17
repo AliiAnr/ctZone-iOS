@@ -18,7 +18,6 @@ class ProfileViewModel: ObservableObject {
         Country(name: "United States", timezone: "America/New_York")
     ]
     
-    // **Filtered List of Countries**
     var filteredCountries: [Country] {
         let sortedCountries = countries.sorted { $0.name < $1.name }
         if searchText.isEmpty {
