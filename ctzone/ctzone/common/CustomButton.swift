@@ -1,9 +1,3 @@
-//
-//  CustomButton.swift
-//  ctzone
-//
-//  Created by Ali An Nuur on 17/03/25.
-//
 
 import SwiftUI
 
