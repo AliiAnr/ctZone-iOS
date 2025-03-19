@@ -15,7 +15,7 @@ enum Destination: NavigationDestinationProtocol {
     case cart
     case profile
     case curut
-    case searchDetail
+    case searchDetail(Location)
     case search
     
     var title: String {
@@ -28,8 +28,8 @@ enum Destination: NavigationDestinationProtocol {
             return "Profile"
         case .curut:
             return "Curut"
-        case .searchDetail:
-            return "Detel"
+        case .searchDetail(let location):
+            return location.name
         case .search:
             return "Search"
         }
@@ -47,8 +47,8 @@ enum Destination: NavigationDestinationProtocol {
             ProfileView()
         case .curut:
             CuruttView()
-        case .searchDetail:
-            SearchDetailView()
+        case .searchDetail(let location):
+            SearchDetailView(location: location)
                 .environmentObject(UserDefaultsManager.shared)
         case .search:
             SearchView()

@@ -70,23 +70,23 @@ struct CountrySelectionSheet: View {
                 // **Search Bar**
                 SearchBarView(searchText:$viewModel.searchText)
                 
-                // **List Negara dengan LazyVStack**
+//                 **List Negara dengan LazyVStack**
                 ScrollView {
                     LazyVStack {
-                        ForEach(viewModel.filteredCountries) { country in
+                        ForEach(viewModel.filteredCountries) { location in
                             
                             
                             Button(action: {
-                                userDefaultsManager.setSelectedCountry(country)
+                                userDefaultsManager.setSelectedCountry(location)
                                 isPresented.toggle()
                             }) {
                                 VStack {
                                     HStack {
                                         VStack(alignment: .leading) {
-                                            Text(country.name)
+                                            Text(location.name)
                                                 .font(.headline)
-                                                .foregroundColor(userDefaultsManager.selectedCountry?.name == country.name ? .blue : .primary)
-                                            Text("Time: \(country.currentTime)")
+                                                .foregroundColor(userDefaultsManager.selectedCountry?.name == location.name ? .blue : .primary)
+                                            Text("Time: \(location.currentTime)")
                                                 .font(.subheadline)
                                                 .foregroundColor(.gray)
                                         }

@@ -6,6 +6,8 @@ struct SearchDetailView: View {
     @State private var isPinned: Bool = false
     @FocusState var isFocused: Bool
     @State private var isSheetPresented = false
+    let location : Location
+    
     
     var body: some View {
         ScrollView{
@@ -14,13 +16,13 @@ struct SearchDetailView: View {
                 Color(UIColor.systemBackground)
                     .ignoresSafeArea()
                 
-                VStack(spacing: 20) {
+                VStack() {
                     // **Top Section**
-                    TopSectionView()
+                    TopSectionView(location: location)
                     
                     
                     // **Mid Section**
-                    MidSectionView(viewModel: viewModel)
+                    MidSectionView(viewModel: viewModel, location : location)
                     
                     Button(action: {
                         print("Save button tapped")
@@ -35,7 +37,7 @@ struct SearchDetailView: View {
                             .cornerRadius(10)
                             .padding(.horizontal)
                     }
-                    .padding(.top, 30)
+                    .padding(.top, 50)
                     .buttonStyle(.plain)
                     
                     // **Bottom Section**
@@ -74,6 +76,8 @@ struct SearchDetailView: View {
 }
 
 private struct TopSectionView: View {
+    var location: Location
+    
     var body: some View {
         VStack {
             Image("Flag_of_Argentina")
@@ -87,27 +91,29 @@ private struct TopSectionView: View {
                           .blur(radius: 10)
                   )
             
-            Text("Argentina")
+            Text(location.name)
                 .font(.title)
                 .fontDesign(.default)
                 .foregroundColor(Color(UIColor.label))
-                .padding(.top, 7)
+                .padding(.top, 10)
         }
-        .padding()
-        
+        .padding(.top, 30)
     }
 }
 
 private struct MidSectionView: View {
     @ObservedObject var viewModel: TimePickerViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    let location: Location
+    
     var body: some View {
         VStack {
             HStack {
-                TimePickerView(viewModel: viewModel)
+                TimePickerView(viewModel: viewModel, location: location)
             }
         }
         .frame(maxWidth: .infinity)
+        .padding(.top, 20)
     }
 }
 
@@ -260,6 +266,6 @@ struct DescriptionSheet: View {
 }
 
 
-#Preview {
-    SearchDetailView()
-}
+//#Preview {
+//    SearchDetailView()
+//}

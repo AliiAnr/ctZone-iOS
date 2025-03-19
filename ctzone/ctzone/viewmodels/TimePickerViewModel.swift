@@ -3,12 +3,20 @@ import Foundation
 class TimePickerViewModel: ObservableObject {
     @Published var selectedHour: Int
     @Published var selectedMinute: Int
-    @Published var isAM: Bool
-    @Published var use24HourFormat: Bool = true
 
     @Published var selectedDay: Int
     @Published var selectedMonth: Int
     @Published var selectedYear: Int
+
+    @Published var destinationHour: Int
+    @Published var destinationMinute: Int
+
+    @Published var destinationDay: Int
+    @Published var destinationMonth: Int
+    @Published var destinationYear: Int
+
+    @Published var isAM: Bool
+    @Published var use24HourFormat: Bool = true
 
     // Variabel sementara sebelum menyimpan
     @Published var tempHour: Int
@@ -31,6 +39,7 @@ class TimePickerViewModel: ObservableObject {
         let month = components.month ?? 1
         let year = components.year ?? 2020
 
+        // **Inisialisasi waktu awal untuk lokasi utama**
         selectedHour = hour
         selectedMinute = minute
         isAM = isAMValue
@@ -38,6 +47,14 @@ class TimePickerViewModel: ObservableObject {
         selectedMonth = month
         selectedYear = year
 
+        // **Inisialisasi waktu awal untuk destinasi (default ke waktu saat ini)**
+        destinationHour = hour
+        destinationMinute = minute
+        destinationDay = day
+        destinationMonth = month
+        destinationYear = year
+
+        // **Inisialisasi variabel sementara**
         tempHour = hour
         tempMinute = minute
         tempIsAM = isAMValue
@@ -45,6 +62,112 @@ class TimePickerViewModel: ObservableObject {
         tempMonth = month
         tempYear = year
     }
+
+    /// **Mengupdate waktu sesuai dengan lokasi yang dipilih**
+    func updateTimeBasedOnLocation(_ location: Location) {
+        guard let timeZone = location.timeZone else { return }
+
+        let components = calendar.dateComponents(in: timeZone, from: Date())
+
+        guard let hour = components.hour,
+              let minute = components.minute,
+              let day = components.day,
+              let month = components.month,
+              let year = components.year else { return }
+
+        let isAMValue = hour < 12
+
+        // **Mengupdate waktu terpilih**
+        selectedHour = hour
+        selectedMinute = minute
+        isAM = isAMValue
+        selectedDay = day
+        selectedMonth = month
+        selectedYear = year
+
+        // **Mengupdate variabel sementara**
+        tempHour = hour
+        tempMinute = minute
+        tempIsAM = isAMValue
+        tempDay = day
+        tempMonth = month
+        tempYear = year
+    }
+
+    /// **Mengupdate waktu destinasi sesuai dengan lokasi yang dipilih**
+    func getDestinationCountryTime(_ location: Location) {
+        guard let timeZone = location.timeZone else { return }
+
+        let components = calendar.dateComponents(in: timeZone, from: Date())
+
+        guard let hour = components.hour,
+              let minute = components.minute,
+              let day = components.day,
+              let month = components.month,
+              let year = components.year else { return }
+
+        destinationHour = hour
+        destinationMinute = minute
+        destinationDay = day
+        destinationMonth = month
+        destinationYear = year
+    }
+    
+    func convertLocationTime(
+            from sourceCity: Location,
+            to destinationCity: Location,
+            year: Int,
+            month: Int,
+            day: Int,
+            hour: Int,
+            minute: Int
+        ) {
+            guard let sourceTimeZone = sourceCity.timeZone,
+                  let destinationTimeZone = destinationCity.timeZone else {
+                return
+            }
+
+            var sourceCalendar = Calendar.current
+            sourceCalendar.timeZone = sourceTimeZone
+
+            var dateComponents = DateComponents()
+            dateComponents.year = year
+            dateComponents.month = month
+            dateComponents.day = day
+            dateComponents.hour = hour
+            dateComponents.minute = minute
+
+            guard let sourceDate = sourceCalendar.date(from: dateComponents) else {
+                return
+            }
+
+            let sourceComponents = sourceCalendar.dateComponents(in: sourceTimeZone, from: sourceDate)
+
+            var destinationCalendar = Calendar.current
+            destinationCalendar.timeZone = destinationTimeZone
+
+            if let destinationDate = destinationCalendar.date(from: sourceComponents) {
+                let destinationComponents = destinationCalendar.dateComponents(
+                    [.year, .month, .day, .hour, .minute],
+                    from: destinationDate
+                )
+
+                guard let convertedYear = destinationComponents.year,
+                      let convertedMonth = destinationComponents.month,
+                      let convertedDay = destinationComponents.day,
+                      let convertedHour = destinationComponents.hour,
+                      let convertedMinute = destinationComponents.minute else {
+                    return
+                }
+
+                // **Mengupdate variabel tujuan**
+                destinationYear = convertedYear
+                destinationMonth = convertedMonth
+                destinationDay = convertedDay
+                destinationHour = convertedHour
+                destinationMinute = convertedMinute
+            }
+        }
     
     func daysInMonth(month: Int, year: Int) -> Int {
         let dateComponents = DateComponents(year: year, month: month)
@@ -62,17 +185,22 @@ class TimePickerViewModel: ObservableObject {
         }
     }
     
-    func resetToCurrentTime() {
-        let currentDate = Date()
-        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: currentDate)
-
-        // **Set semua nilai kembali ke waktu saat ini**
-        selectedYear = components.year ?? tempYear
-        selectedMonth = components.month ?? tempMonth
-        selectedDay = components.day ?? tempDay
-        selectedHour = components.hour ?? tempHour
-        selectedMinute = components.minute ?? tempMinute
-        isAM = tempHour < 12
+//    func resetToCurrentTime() {
+//        let currentDate = Date()
+//        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: currentDate)
+//
+//        // **Set semua nilai kembali ke waktu saat ini**
+//        selectedYear = components.year ?? tempYear
+//        selectedMonth = components.month ?? tempMonth
+//        selectedDay = components.day ?? tempDay
+//        selectedHour = components.hour ?? tempHour
+//        selectedMinute = components.minute ?? tempMinute
+//        isAM = tempHour < 12
+//    }
+    
+    func resetToCurrentTime(currentTime: Location, destinationTime: Location) {
+        updateTimeBasedOnLocation(currentTime)
+        getDestinationCountryTime(destinationTime)
     }
 
     /// **Validasi Tanggal & Waktu Tidak Boleh di Masa Lalu**
@@ -96,7 +224,6 @@ class TimePickerViewModel: ObservableObject {
             tempIsAM = tempHour < 12
         }
 
-        // **Cek apakah AM dipilih saat waktu sebenarnya sudah PM**
         if tempYear == nowComponents.year, tempMonth == nowComponents.month, tempDay == nowComponents.day {
             if tempHour < nowComponents.hour ?? 0 {
                 tempHour = nowComponents.hour ?? tempHour
@@ -122,24 +249,49 @@ class TimePickerViewModel: ObservableObject {
         tempYear = selectedYear
     }
 
-    func saveTime() {
-        selectedHour = tempHour
-        selectedMinute = tempMinute
-        isAM = tempIsAM
-        selectedDay = tempDay
-        selectedMonth = tempMonth
-        selectedYear = tempYear
+//    func saveTime() {
+//        selectedHour = tempHour
+//        selectedMinute = tempMinute
+//        isAM = tempIsAM
+//        selectedDay = tempDay
+//        selectedMonth = tempMonth
+//        selectedYear = tempYear
+//    }
+    
+    func saveDestinationTime(_ currentLocation : Location, _ destinationLocation : Location) {
+                selectedHour = tempHour
+                selectedMinute = tempMinute
+                isAM = tempIsAM
+                selectedDay = tempDay
+                selectedMonth = tempMonth
+                selectedYear = tempYear
+        
+        convertLocationTime(from: currentLocation, to: destinationLocation, year: selectedYear, month: selectedMonth, day: selectedDay, hour: selectedHour, minute: selectedMinute)
     }
 
-    func formattedTime() -> String {
+    func formattedTime() -> (hourMinute: String, amPm: String?) {
         let hour = use24HourFormat ? selectedHour : (selectedHour % 12 == 0 ? 12 : selectedHour % 12)
         let minute = String(format: "%02d", selectedMinute)
         let amPm = isAM ? "AM" : "PM"
 
-        return use24HourFormat ? "\(hour):\(minute)" : "\(hour):\(minute) \(amPm)"
+        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
     }
+    
+    func formattedDestinationTime() -> (hourMinute: String, amPm: String?) {
+        let hour = use24HourFormat ? destinationHour : (destinationHour % 12 == 0 ? 12 : destinationHour % 12)
+        let minute = String(format: "%02d", destinationMinute)
+        let amPm = isAM ? "AM" : "PM"
+
+        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
+    }
+
+    
 
     func formattedDate() -> String {
         return "\(selectedDay)-\(selectedMonth)-\(selectedYear)"
+    }
+    
+    func formattedDestinationDate() -> String {
+        return "\(destinationDay)-\(destinationMonth)-\(destinationYear)"
     }
 }

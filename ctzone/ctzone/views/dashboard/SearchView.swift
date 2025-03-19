@@ -20,20 +20,20 @@ struct SearchView: View {
                   // **ScrollView untuk LazyVStack**
                   ScrollView {
                       LazyVStack(alignment: .leading) {
-                          ForEach(viewModel.filteredCountries) { country in
+                          ForEach(viewModel.filteredCountries) { location in
                               
                               Button(action: {
-                                  print("Country selected: \(country.name)")
-                                  navigationController.push(.searchDetail)
+                                  print("Country selected: \(location.name)")
+                                  navigationController.push(.searchDetail(location))
                                       
                               }) {
                                   VStack {
                                       HStack {
                                           VStack(alignment: .leading) {
-                                              Text(country.name)
+                                              Text(location.name)
                                                   .font(.headline)
                                                   .foregroundColor(.black)
-                                              Text("Time: \(country.currentTime)")
+                                              Text("Time: \(location.currentTime)")
                                                   .font(.subheadline)
                                                   .foregroundColor(.gray)
                                           }

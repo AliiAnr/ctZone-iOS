@@ -5,10 +5,10 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @StateObject private var navigationController = NavigationViewModel()
     @StateObject private var userDefaultsManager = UserDefaultsManager.shared
-    
-    init() {
-        userDefaultsManager.setSelectedCountry(        Country(name: "Indonesia", timezone: "Asia/Jakarta"))
-    }
+//    
+//    init() {
+//        userDefaultsManager.setSelectedCountry(        Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true))
+//    }
 
     var body: some View {
         NavigationStack(path: $navigationController.path) {
