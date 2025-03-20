@@ -44,7 +44,7 @@ private struct TopSectione: View {
             VStack(alignment: .leading) {
                 Text("\(location.name), +1UTC")
                     .font(.headline)
-                    .foregroundStyle(Color("test/Color"))
+                    //.foregroundStyle(Color("test"))
                 Text(date)
                     .font(.subheadline)
                     .foregroundColor(.gray)
