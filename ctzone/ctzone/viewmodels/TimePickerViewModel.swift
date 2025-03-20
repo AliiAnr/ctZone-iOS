@@ -268,22 +268,26 @@ class TimePickerViewModel: ObservableObject {
         
         convertLocationTime(from: currentLocation, to: destinationLocation, year: selectedYear, month: selectedMonth, day: selectedDay, hour: selectedHour, minute: selectedMinute)
     }
-
-    func formattedTime() -> (hourMinute: String, amPm: String?) {
-        let hour = use24HourFormat ? selectedHour : (selectedHour % 12 == 0 ? 12 : selectedHour % 12)
-        let minute = String(format: "%02d", selectedMinute)
-        let amPm = isAM ? "AM" : "PM"
-
-        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
-    }
     
-    func formattedDestinationTime() -> (hourMinute: String, amPm: String?) {
-        let hour = use24HourFormat ? destinationHour : (destinationHour % 12 == 0 ? 12 : destinationHour % 12)
-        let minute = String(format: "%02d", destinationMinute)
+    func formattedTime() -> (hourMinute: String, amPm: String?) {
+        // Memastikan hasil ternary selalu berupa String
+        let hour = use24HourFormat ? String(format: "%02d", selectedHour) : String(selectedHour % 12 == 0 ? 12 : selectedHour % 12)
+        let minute = String(format: "%02d", selectedMinute)  // Memastikan menit selalu dua digit
         let amPm = isAM ? "AM" : "PM"
 
         return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
     }
+
+    func formattedDestinationTime() -> (hourMinute: String, amPm: String?) {
+        // Memastikan hasil ternary selalu berupa String
+        let hour = use24HourFormat ? String(format: "%02d", destinationHour) : String(destinationHour % 12 == 0 ? 12 : destinationHour % 12)
+        let minute = String(format: "%02d", destinationMinute)  // Memastikan menit selalu dua digit
+        let amPm = isAM ? "AM" : "PM"
+
+        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
+    }
+
+
 
     
 

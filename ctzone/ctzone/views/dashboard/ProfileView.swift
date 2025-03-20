@@ -64,6 +64,9 @@ struct CountrySelectionSheet: View {
     @ObservedObject var viewModel: ProfileViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     
+    @State private var is24HourFormat: Bool = false
+
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -85,21 +88,50 @@ struct CountrySelectionSheet: View {
                                         VStack(alignment: .leading) {
                                             Text(location.name)
                                                 .font(.headline)
-                                                .foregroundColor(userDefaultsManager.selectedCountry?.name == location.name ? .blue : .primary)
-                                            Text("Time: \(location.currentTime)")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
+                                                .foregroundColor(.black)
+                                            
+                                            let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
+                                                
+                                            HStack(spacing: 2) {
+                                                // Menampilkan waktu
+                                                Text(timeInfo.hourMinute)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.gray)
+                                                
+                                                // Menampilkan AM/PM jika ada
+                                                if let amPm = timeInfo.amPm {
+                                                    Text("\(amPm),")
+                                                        .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
+                                                        .foregroundColor(.blue)  // Warna AM/PM
+                                                }
+                                                
+                                                // Menampilkan informasi UTC jika ada
+                                                if let utcInfo = location.utcInformation {
+                                                    Text(utcInfo)
+                                                        .font(.system(size: 10, weight: .medium))
+                                                        .foregroundColor(.blue)
+                                                        .baselineOffset(5) // Memindahkan sedikit ke atas
+                                                }
+                                            }
                                         }
                                         .padding(.vertical, 5)
+                                        
                                         Spacer()
-                                        Image("Flag_of_Argentina")
+                                        
+                                        Image(location.image)
                                             .resizable()
                                             .scaledToFit()
+                                            .aspectRatio(contentMode: .fill)
                                             .frame(width: 35, height: 35)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .fill(Color.black.opacity(0.2))
+                                                    .blur(radius: 2)
+                                            )
                                     }
-                                    .frame(maxWidth: .infinity)
-                                    .contentShape(Rectangle()) 
+                                    .frame(maxWidth: .infinity) // **Pastikan HStack memenuhi lebar**
+                                    .contentShape(Rectangle()) // **Memastikan seluruh area bisa diklik**
                                     
                                     Divider()
                                 }
@@ -114,6 +146,9 @@ struct CountrySelectionSheet: View {
             }
             .navigationTitle("Select Country")
             .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear{
+            is24HourFormat = userDefaultsManager.use24HourFormat
         }
     }
 }

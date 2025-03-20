@@ -80,16 +80,18 @@ private struct TopSectionView: View {
     
     var body: some View {
         VStack {
-            Image("Flag_of_Argentina")
+            // **Gambar dengan Aspect Ratio yang Dinamis**
+            Image(location.image)
                 .resizable()
-                .scaledToFit()
-                .frame(width: 150, height: 100)
+                .scaledToFit()  // Menjaga gambar sesuai dengan ukuran
+                .aspectRatio(contentMode: .fill)  // Menjaga proporsi gambar sesuai dengan frame
+                .frame(maxWidth: 150, minHeight: 100)  // Menentukan batasan ukuran
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .background(
-                      RoundedRectangle(cornerRadius: 12)
-                          .fill(Color.black.opacity(0.2))
-                          .blur(radius: 10)
-                  )
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.2))
+                        .blur(radius: 2)
+                )
             
             Text(location.name)
                 .font(.title)
@@ -97,9 +99,10 @@ private struct TopSectionView: View {
                 .foregroundColor(Color(UIColor.label))
                 .padding(.top, 10)
         }
-        .padding(.top, 30)
+        .padding(.top, 20)
     }
 }
+
 
 private struct MidSectionView: View {
     @ObservedObject var viewModel: TimePickerViewModel
