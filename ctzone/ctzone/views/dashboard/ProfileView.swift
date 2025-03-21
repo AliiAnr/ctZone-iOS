@@ -6,54 +6,64 @@ struct ProfileView: View {
     @State private var isSheetPresented = false
     
     var body: some View {
+        VStack{
         
-        ZStack {
-
-            Color(UIColor.systemBackground)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                HStack{
-                    Text("\(userDefaultsManager.selectedCountry?.name ?? "No Country Selected")")
-                        .font(.system(size: 26, weight: .light))
-                    Spacer()
-                    Image("Flag_of_Argentina")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 35, height: 35)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                Text("KOAWKOWAOW")
+                .padding(.vertical)
+            ZStack {
+                
+                Color(UIColor.systemBackground)
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    HStack{
+                        Text("\(userDefaultsManager.selectedCountry?.name ?? "No Country Selected")")
+                            .font(.system(size: 26, weight: .light))
+                        Spacer()
+                        Image(userDefaultsManager.selectedCountry?.image ?? "Flag_of_Indonesia")
+                            .resizable()
+                            .scaledToFit()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 35, height: 35)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.black.opacity(0.2))
+                                    .blur(radius: 2)
+                            )
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+                    .padding(.bottom, 50)
+                    //                if let country = userDefaultsManager.selectedCountry {
+                    //                    Text("Selected Country: \(country.name)")
+                    //                        .font(.title2)
+                    //                        .padding()
+                    //                } else {
+                    //                    Text("No Country Selected")
+                    //                        .foregroundColor(.gray)
+                    //                        .font(.title2)
+                    //                }
+                    
+                    CustomButton(text: "Select Country", action: {
+                        isSheetPresented.toggle()
+                    })
+                    
+                    //                if userDefaultsManager.selectedCountry != nil {
+                    //                    Button("Clear Selection") {
+                    //                        userDefaultsManager.clearSelectedCountry()
+                    //                    }
+                    //                    .buttonStyle(.bordered)
+                    //                    .padding()
+                    //                }
                 }
                 .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color(UIColor.systemGray6))
-                .cornerRadius(10)
-                .padding(.bottom, 50)
-//                if let country = userDefaultsManager.selectedCountry {
-//                    Text("Selected Country: \(country.name)")
-//                        .font(.title2)
-//                        .padding()
-//                } else {
-//                    Text("No Country Selected")
-//                        .foregroundColor(.gray)
-//                        .font(.title2)
-//                }
-                
-                CustomButton(text: "Select Country", action: {
-                    isSheetPresented.toggle()
-                })
-                
-//                if userDefaultsManager.selectedCountry != nil {
-//                    Button("Clear Selection") {
-//                        userDefaultsManager.clearSelectedCountry()
-//                    }
-//                    .buttonStyle(.bordered)
-//                    .padding()
-//                }
-            }
-            .padding()
-            .frame(maxHeight: .infinity, alignment: .top)
-            .sheet(isPresented: $isSheetPresented) {
-                CountrySelectionSheet(isPresented: $isSheetPresented, viewModel: viewModel)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .sheet(isPresented: $isSheetPresented) {
+                    CountrySelectionSheet(isPresented: $isSheetPresented, viewModel: viewModel)
+                }
             }
         }
     }

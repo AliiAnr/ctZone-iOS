@@ -5,31 +5,53 @@ struct HomeView: View {
     @EnvironmentObject var userDefaultsManager : UserDefaultsManager
     
     var body: some View {
-        ScrollView{
-            ZStack {
-                
-                Color(UIColor.systemBackground)
-                    .ignoresSafeArea()
-                
-                VStack(spacing: 20) {
-                    TopSectione(
-                        location: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true),
-                        date: userDefaultsManager.selectedDate,
-                        isPinned: $userDefaultsManager.use24HourFormat
-                    )
-                    
-                    Divider()
-                    PinnedSection()
-                    ReminderSection()
-
-                    
-                    
-                }
-                .frame(maxHeight: .infinity, alignment: .top)
-                .padding()
-            }
+        VStack{
+            Text("KOAWKOWAOW")
+                .padding(.vertical)
             
+            TopSectione(
+                location: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true),
+                date: userDefaultsManager.selectedDate,
+                isPinned: $userDefaultsManager.use24HourFormat
+            )
+            .id("top")
+            .padding(.horizontal)
+            
+            devedere()
+            
+            
+            ScrollView {
+                ZStack {
+                    Color(UIColor.systemBackground)
+                        .ignoresSafeArea()
+                    
+                    VStack {
+                        PinnedSection()
+                        ReminderSection()
+                    }
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal)
+                    .padding(.top, 10)
+                }
+            }
         }
+    }
+}
+
+struct devedere: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.white)
+            .frame(height: 2)
+            .padding(.horizontal)
+            .overlay(
+                Rectangle()
+                    .foregroundColor(Color.gray.opacity(0.2))
+                    .frame(height: 1)
+                    .padding(.top, 9)
+                    .padding(.horizontal),
+                alignment: .top
+            )
     }
 }
 
@@ -37,14 +59,14 @@ private struct TopSectione: View {
     @Environment(\.colorScheme) var colorScheme
     let location: Location
     let date: String
-    @Binding var isPinned: Bool 
+    @Binding var isPinned: Bool
     
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 Text("\(location.name), +1UTC")
                     .font(.headline)
-                    //.foregroundStyle(Color("test"))
+                //.foregroundStyle(Color("test"))
                 Text(date)
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -57,7 +79,7 @@ private struct TopSectione: View {
             }) {
                 Image(systemName: isPinned ? "24.circle.fill" : "24.circle")
                     .foregroundColor(isPinned ? Color(.blue): .blue)
-                    //.foregroundColor(colorScheme == .dark ? Color.yellow : Color.blue)
+                //.foregroundColor(colorScheme == .dark ? Color.yellow : Color.blue)
                     .font(.system(size: 28))
             }
         }
@@ -71,18 +93,18 @@ private struct TopSectione: View {
 
 private struct PinnedSection: View {
     @State var country = ["Jakarta", "Argentina", "Jakarta","Jakarta", "Argentina", "Jakarta","Jakarta", "Argentina", "Jakarta","Jakarta", "Argentina", "Jakarta"]
-
+    
     // Definisikan nilai dasar dan padding
     let baseRowHeight: CGFloat = 60
     let verticalPadding: CGFloat = 10 // 5 atas + 5 bawah
-
+    
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             Text("Pinned")
                 .font(.system(size: 24))
                 .bold()
-                .padding(.horizontal)
-
+                .padding(.vertical)
+            
             List {
                 ForEach(country, id: \.self) { item in
                     HStack {
@@ -94,9 +116,9 @@ private struct PinnedSection: View {
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
-
+                        
                         Spacer()
-
+                        
                         Text("15:00")
                             .font(.system(size: 44, weight: .light))
                     }
@@ -163,7 +185,7 @@ private struct ReminderSection: View {
                         
                     }.padding(.top, 10)
                         .padding(.horizontal, 16)
-                        
+                    
                     
                     Divider().padding(.horizontal, 16)
                     

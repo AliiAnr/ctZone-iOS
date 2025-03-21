@@ -35,7 +35,9 @@ struct ContentView: View {
                         Label("Profile", systemImage: "person")
                     }
             }
-            .navigationTitle(getTitle(for: selectedTab))             .navigationDestination(for: Destination.self) { destination in
+//            .navigationTitle(getTitle(for: selectedTab))
+//            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: Destination.self) { destination in
                 destination.destinationView.environmentObject(navigationController)
             }
         }

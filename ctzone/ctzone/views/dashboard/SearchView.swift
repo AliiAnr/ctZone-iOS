@@ -16,11 +16,16 @@ struct SearchView: View {
     
     var body: some View {
         VStack {
-            // **Search Bar Tetap di Atas**
+            // **Search Bar Tetap di Atas**        VStack{
+            Text("KOAWKOWAOW")
+                .padding(.vertical)
             SearchBarView(searchText: $viewModel.searchText)
             
             // **ScrollView untuk LazyVStack**
             ScrollView {
+                
+
+                
                 LazyVStack(alignment: .leading) {
                     ForEach(viewModel.filteredCountries) { location in
                         
@@ -52,12 +57,12 @@ struct SearchView: View {
                                             }
                                             
                                             // Menampilkan informasi UTC jika ada
-                                            if let utcInfo = location.utcInformation {
-                                                Text(utcInfo)
-                                                    .font(.system(size: 10, weight: .medium))
-                                                    .foregroundColor(.blue)
-                                                    .baselineOffset(5) // Memindahkan sedikit ke atas
-                                            }
+//                                            if let utcInfo = location.utcInformation {
+//                                                Text(utcInfo)
+//                                                    .font(.system(size: 10, weight: .medium))
+//                                                    .foregroundColor(.blue)
+//                                                    .baselineOffset(5) // Memindahkan sedikit ke atas
+//                                            }
                                         }
                                     }
                                     .padding(.vertical, 5)
