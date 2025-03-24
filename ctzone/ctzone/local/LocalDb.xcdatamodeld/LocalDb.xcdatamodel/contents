@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D81" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="LocationEntity" representedClassName="LocationEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="country" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
+        <attribute name="isCity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isPinned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="timezoneIdentifier" optional="YES" attributeType="String"/>
+        <attribute name="utcInformation" optional="YES" attributeType="String"/>
+        <relationship name="reminderEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ReminderEntity" inverseName="locationEntity" inverseEntity="ReminderEntity"/>
+    </entity>
+    <entity name="ReminderEntity" representedClassName="ReminderEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="currentCountryDate" optional="YES" attributeType="String"/>
+        <attribute name="currentCountryName" optional="YES" attributeType="String"/>
+        <attribute name="currentCountryTime" optional="YES" attributeType="String"/>
+        <attribute name="currentCountryTimezone" optional="YES" attributeType="String"/>
+        <attribute name="desc" optional="YES" attributeType="String"/>
+        <attribute name="destinationCountryDate" optional="YES" attributeType="String"/>
+        <attribute name="destinationCountryName" optional="YES" attributeType="String"/>
+        <attribute name="destinationCountryTime" optional="YES" attributeType="String"/>
+        <attribute name="destinationCountryTimezone" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="locationEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocationEntity" inverseName="reminderEntity" inverseEntity="LocationEntity"/>
+    </entity>
+</model>

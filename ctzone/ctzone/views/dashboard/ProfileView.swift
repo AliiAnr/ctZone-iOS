@@ -1,14 +1,20 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @StateObject private var viewModel = ProfileViewModel()
+//    @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     @State private var isSheetPresented = false
     
+//    @StateObject private var locationViewModel = Injection.shared.locationViewModel
+    
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    
+    @State private var is24HourFormat: Bool = false
+    
     var body: some View {
         VStack{
-        
-                Text("KOAWKOWAOW")
+            
+            Text("KOAWKOWAOW")
                 .padding(.vertical)
             ZStack {
                 
@@ -59,10 +65,13 @@ struct ProfileView: View {
                     //                    .padding()
                     //                }
                 }
+                .onAppear{
+                    is24HourFormat = userDefaultsManager.use24HourFormat
+                }
                 .padding()
                 .frame(maxHeight: .infinity, alignment: .top)
                 .sheet(isPresented: $isSheetPresented) {
-                    CountrySelectionSheet(isPresented: $isSheetPresented, viewModel: viewModel)
+                    CountrySelectionSheet(isPresented: $isSheetPresented, locationViewModel: locationViewModel, is24HourFormat: $is24HourFormat)
                 }
             }
         }
@@ -71,22 +80,24 @@ struct ProfileView: View {
 
 struct CountrySelectionSheet: View {
     @Binding var isPresented: Bool
-    @ObservedObject var viewModel: ProfileViewModel
+//    @ObservedObject var viewModel: ProfileViewModel
+    @ObservedObject var locationViewModel: LocationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     
-    @State private var is24HourFormat: Bool = false
-
+    @Binding var is24HourFormat: Bool
+   
+    
     
     var body: some View {
         NavigationStack {
             VStack {
                 // **Search Bar**
-                SearchBarView(searchText:$viewModel.searchText)
+                SearchBarView(searchText:$locationViewModel.searchText)
                 
-//                 **List Negara dengan LazyVStack**
+                //                 **List Negara dengan LazyVStack**
                 ScrollView {
                     LazyVStack {
-                        ForEach(viewModel.filteredCountries) { location in
+                        ForEach(locationViewModel.filteredCountries) { location in
                             
                             
                             Button(action: {
@@ -101,7 +112,7 @@ struct CountrySelectionSheet: View {
                                                 .foregroundColor(.black)
                                             
                                             let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
-                                                
+                                            
                                             HStack(spacing: 2) {
                                                 // Menampilkan waktu
                                                 Text(timeInfo.hourMinute)
@@ -110,18 +121,18 @@ struct CountrySelectionSheet: View {
                                                 
                                                 // Menampilkan AM/PM jika ada
                                                 if let amPm = timeInfo.amPm {
-                                                    Text("\(amPm),")
+                                                    Text("\(amPm)")
                                                         .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
                                                         .foregroundColor(.blue)  // Warna AM/PM
                                                 }
                                                 
                                                 // Menampilkan informasi UTC jika ada
-                                                if let utcInfo = location.utcInformation {
-                                                    Text(utcInfo)
-                                                        .font(.system(size: 10, weight: .medium))
-                                                        .foregroundColor(.blue)
-                                                        .baselineOffset(5) // Memindahkan sedikit ke atas
-                                                }
+//                                                if let utcInfo = location.utcInformation {
+//                                                    Text(utcInfo)
+//                                                        .font(.system(size: 10, weight: .medium))
+//                                                        .foregroundColor(.blue)
+//                                                        .baselineOffset(5) // Memindahkan sedikit ke atas
+//                                                }
                                             }
                                         }
                                         .padding(.vertical, 5)
@@ -146,7 +157,7 @@ struct CountrySelectionSheet: View {
                                     Divider()
                                 }
                                 
-                               
+                                
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
@@ -154,85 +165,10 @@ struct CountrySelectionSheet: View {
                     .padding(.horizontal)
                 }
             }
+
             .navigationTitle("Select Country")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .onAppear{
-            is24HourFormat = userDefaultsManager.use24HourFormat
-        }
-    }
-}
 
-
-
-
-//struct ProfileView: View {
-//    @EnvironmentObject var navigationController: NavigationViewModel
-//
-//    var body: some View {
-//        VStack {
-//            Text("Profile Screen")
-//                .font(.largeTitle)
-//
-//            Button("Edit Profile") {
-//                navigationController.push(.editProfile)
-//            }
-//            .buttonStyle(.borderedProminent)
-//        }
-//        .navigationTitle("Profile")
-//    }
-//}
-
-
-struct ProductDetailView: View {
-    let product: Product
-    
-    var body: some View {
-        VStack {
-            Text("Detail for \(product.name)")
-                .font(.largeTitle)
-        }
-        .navigationTitle(product.name)
-        .toolbar(.hidden, for: .tabBar)
-    }
-}
-
-struct CartView: View {
-    var body: some View {
-        VStack {
-            Text("This is Cart View")
-                .font(.largeTitle)
-        }
-        .navigationTitle("Cart")
-        .toolbar(.hidden, for: .tabBar)
-    }
-}
-
-
-struct DetelView: View {
-    
-    @EnvironmentObject var viewModel: NavigationViewModel
-    
-    var body: some View {
-        VStack {
-            Text("This is Cart View")
-                .font(.largeTitle)
-            Button("Edit Profile") {
-                viewModel.push(.curut)
-            }
-        }
-        .navigationTitle("Cart")
-        .toolbar(.hidden, for: .tabBar)
-    }
-}
-
-struct CuruttView: View {
-    var body: some View {
-        VStack {
-            Text("This is Cart View")
-                .font(.largeTitle)
-        }
-        .navigationTitle("Cart")
-        .toolbar(.hidden, for: .tabBar)
     }
 }

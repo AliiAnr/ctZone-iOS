@@ -10,28 +10,31 @@ import SwiftUI
 struct SearchView: View {
     @EnvironmentObject var navigationController: NavigationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
-    @StateObject private var viewModel = CountryViewModel()
+    //    @StateObject private var viewModel = CountryViewModel()
     
-    @State private var is24HourFormat: Bool = false
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    
+    @State private var is24HourFormat = false
     
     var body: some View {
         VStack {
             // **Search Bar Tetap di Atas**        VStack{
             Text("KOAWKOWAOW")
                 .padding(.vertical)
-            SearchBarView(searchText: $viewModel.searchText)
+            SearchBarView(searchText: $locationViewModel.searchText)
             
             // **ScrollView untuk LazyVStack**
             ScrollView {
                 
-
+                
                 
                 LazyVStack(alignment: .leading) {
-                    ForEach(viewModel.filteredCountries) { location in
+                    ForEach(locationViewModel.filteredCountries) { location in
                         
                         Button(action: {
                             print("Country selected: \(location.name)")
-                            navigationController.push(.searchDetail(location))
+                            navigationController.push(.searchDetail(location.id)
+                            )
                             
                         }) {
                             VStack {
@@ -42,7 +45,7 @@ struct SearchView: View {
                                             .foregroundColor(.black)
                                         
                                         let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
-                                            
+                                        
                                         HStack(spacing: 2) {
                                             // Menampilkan waktu
                                             Text(timeInfo.hourMinute)
@@ -51,18 +54,18 @@ struct SearchView: View {
                                             
                                             // Menampilkan AM/PM jika ada
                                             if let amPm = timeInfo.amPm {
-                                                Text("\(amPm),")
+                                                Text("\(amPm)")
                                                     .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
                                                     .foregroundColor(.blue)  // Warna AM/PM
                                             }
                                             
                                             // Menampilkan informasi UTC jika ada
-//                                            if let utcInfo = location.utcInformation {
-//                                                Text(utcInfo)
-//                                                    .font(.system(size: 10, weight: .medium))
-//                                                    .foregroundColor(.blue)
-//                                                    .baselineOffset(5) // Memindahkan sedikit ke atas
-//                                            }
+                                            //                                            if let utcInfo = location.utcInformation {
+                                            //                                                Text(utcInfo)
+                                            //                                                    .font(.system(size: 10, weight: .medium))
+                                            //                                                    .foregroundColor(.blue)
+                                            //                                                    .baselineOffset(5) // Memindahkan sedikit ke atas
+                                            //                                            }
                                         }
                                     }
                                     .padding(.vertical, 5)
@@ -131,6 +134,6 @@ struct SearchBarView: View {
     }
 }
 
-#Preview {
-    SearchView()
-}
+//#Preview {
+//    SearchView()
+//}

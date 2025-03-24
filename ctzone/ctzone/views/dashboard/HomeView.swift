@@ -1,16 +1,36 @@
 import SwiftUI
 
+import SwiftUI
+
 struct HomeView: View {
+    @EnvironmentObject var locationViewModel: LocationViewModel
     @EnvironmentObject var navigationController: NavigationViewModel
-    @EnvironmentObject var userDefaultsManager : UserDefaultsManager
+    @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    // Misalnya, pinnedLocations diambil dari LocationViewModel
+    var pinnedLocations: [Location] {
+        locationViewModel.locations.filter { $0.isPinned }
+    }
+    
+    // Jika nanti ada ReminderViewModel, ganti dengan data aslinya.
+    // Untuk sementara, saya asumsikan ReminderSection masih menggunakan data dummy,
+    // sehingga saya tetapkan reminderCount = 0 untuk menandakan tidak ada data.
+    var reminderCount: Int {
+        // Ubah sesuai implementasi ReminderSection / ReminderViewModel
+        return 0
+    }
+    
+    // Computed property untuk menentukan apakah harus menampilkan EmptyValue
+    var shouldShowEmptyState: Bool {
+        pinnedLocations.isEmpty && reminderCount == 0
+    }
     
     var body: some View {
-        VStack{
+        VStack {
             Text("KOAWKOWAOW")
                 .padding(.vertical)
             
             TopSectione(
-                location: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true),
+                location: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image: "", timezoneIdentifier: "Asia/Jakarta", utcInformation: "Dummy", isCity: true, isPinned: false),
                 date: userDefaultsManager.selectedDate,
                 isPinned: $userDefaultsManager.use24HourFormat
             )
@@ -18,22 +38,56 @@ struct HomeView: View {
             .padding(.horizontal)
             
             devedere()
+
             
+            Spacer()
             
-            ScrollView {
-                ZStack {
-                    Color(UIColor.systemBackground)
-                        .ignoresSafeArea()
-                    
-                    VStack {
-                        PinnedSection()
-                        ReminderSection()
+            if shouldShowEmptyState {
+//                 Tampilkan empty state di tengah layar
+                EmptyValue()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                Text("Empty State")
+                
+                
+            } else {
+                ScrollView {
+                    ZStack {
+                        Color(UIColor.systemBackground)
+                            .ignoresSafeArea()
+                        
+                        VStack {
+                            PinnedSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
+//                            ReminderSection()
+                        }
+                        .frame(maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal)
+                        .padding(.top, 10)
                     }
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .padding(.horizontal)
-                    .padding(.top, 10)
                 }
             }
+            
+            Spacer()
+        }
+    }
+}
+
+
+struct EmptyValue : View {
+    var body : some View {
+        VStack{
+            Image(systemName: "clock")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(Color("emptyColor"))
+                .opacity(0.5)
+                .frame(width: 170, height: 170)
+            Text("Go pin a location and they will show up here")
+                .font(.system(size: 20, weight: .light))
+                .opacity(0.5)
+                .padding(.top, 10)
+                .foregroundColor(Color("text/body"))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
         }
     }
 }
@@ -64,7 +118,7 @@ private struct TopSectione: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("\(location.name), +1UTC")
+                Text("\(location.name), \(location.utcInformation ?? "UTC+0")")
                     .font(.headline)
                 //.foregroundStyle(Color("test"))
                 Text(date)
@@ -92,11 +146,18 @@ private struct TopSectione: View {
 }
 
 private struct PinnedSection: View {
-    @State var country = ["Jakarta", "Argentina", "Jakarta","Jakarta", "Argentina", "Jakarta","Jakarta", "Argentina", "Jakarta","Jakarta", "Argentina", "Jakarta"]
+    @EnvironmentObject var locationViewModel: LocationViewModel
+//    @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    @Binding var is24HourFormat: Bool
     
     // Definisikan nilai dasar dan padding
     let baseRowHeight: CGFloat = 60
     let verticalPadding: CGFloat = 10 // 5 atas + 5 bawah
+    
+    
+    var pinnedLocations: [Location] {
+        locationViewModel.locations.filter { $0.isPinned }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -106,39 +167,53 @@ private struct PinnedSection: View {
                 .padding(.vertical)
             
             List {
-                ForEach(country, id: \.self) { item in
+                ForEach(pinnedLocations, id: \.id) { location in
                     HStack {
                         VStack(alignment: .leading) {
-                            Text(item)
+                            Text(location.name)
                                 .font(.headline)
                                 .foregroundColor(.primary)
-                            Text("UTC+3")
+                            
+                            
+                            // Misalnya menampilkan UTC atau informasi lain jika ada
+                            Text(location.utcInformation ?? "No UTC")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
-                        
                         Spacer()
+                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
+                        // Menampilkan currentTime yang didefinisikan di struct Location
                         
-                        Text("15:00")
-                            .font(.system(size: 44, weight: .light))
+                        HStack (spacing: 2) {
+                            Text(timeInfo.hourMinute)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            if let amPm = timeInfo.amPm {
+                                Text("\(amPm)")
+                                    .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
+                                    .foregroundColor(.blue)  // Warna AM/PM
+                            }
+
+                        }
+                        
                     }
                     .frame(minHeight: baseRowHeight)
-                    .padding(.vertical, verticalPadding / 2) // 5 poin di atas dan 5 poin di bawah
+                    .padding(.vertical, verticalPadding / 2)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .swipeActions {
                         Button(role: .destructive) {
-                            if let index = country.firstIndex(of: item) {
-                                country.remove(at: index)
-                            }
+                            // Panggil fungsi updatePinStatus pada ViewModel untuk unpin
+                            locationViewModel.updatePinStatus(location: location, pinned: false)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label("Unpin", systemImage: "pin.slash")
                         }
                     }
                 }
             }
             .listStyle(PlainListStyle())
             // Perhitungan tinggi: jumlah item * (baseRowHeight + verticalPadding)
-            .frame(height: CGFloat(country.count) * (baseRowHeight + verticalPadding))
+            .frame(height: CGFloat(pinnedLocations.count) * (baseRowHeight + verticalPadding))
             .scrollDisabled(true)
         }
     }
@@ -205,6 +280,34 @@ private struct ReminderSection: View {
             }
         }
     }
+}
+
+private struct pinnedList: View {
+    
+    let location: String
+    let utcInformation: String
+    let time: String
+    
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text("\(location)")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                Text("UTC+3")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            Text("15:00")
+                .font(.system(size: 44, weight: .light))
+        }
+        
+    }
+    
 }
 
 

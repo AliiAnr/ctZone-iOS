@@ -6,7 +6,14 @@ struct SearchDetailView: View {
     @State private var isPinned: Bool = false
     @FocusState var isFocused: Bool
     @State private var isSheetPresented = false
-    let location : Location
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    //     let location: Location
+    let locationId: UUID
+    
+    // Computed property untuk mendapatkan lokasi terbaru
+    var location: Location? {
+        locationViewModel.location(with: locationId)
+    }
     
     
     var body: some View {
@@ -18,11 +25,11 @@ struct SearchDetailView: View {
                 
                 VStack() {
                     // **Top Section**
-                    TopSectionView(location: location)
+                    TopSectionView(location: location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
                     
                     
                     // **Mid Section**
-                    MidSectionView(viewModel: viewModel, location : location)
+                    MidSectionView(viewModel: viewModel, location : location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
                     
                     Button(action: {
                         print("Save button tapped")
@@ -63,17 +70,20 @@ struct SearchDetailView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
-                    isPinned.toggle()
+                    if let loc = location {
+                        locationViewModel.updatePinStatus(location: loc, pinned: !loc.isPinned)
+                    }
                 }) {
-                    Image(systemName: isPinned ? "pin.fill" : "pin")
-                        .foregroundColor(isPinned ? .yellow : .primary)
-                }
-            }
+                    Image(systemName: (location?.isPinned ?? false) ? "pin.fill" : "pin")
+                        .foregroundColor((location?.isPinned ?? false) ? .yellow : .primary)
+                }                }
         }
+        
         .navigationTitle("Search Detail")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
 
 private struct TopSectionView: View {
     var location: Location
@@ -262,7 +272,7 @@ struct DescriptionSheet: View {
                 .padding(.top, 30)
                 
                 Spacer()
-
+                
             }
         }
     }

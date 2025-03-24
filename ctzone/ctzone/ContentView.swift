@@ -5,23 +5,28 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @StateObject private var navigationController = NavigationViewModel()
     @StateObject private var userDefaultsManager = UserDefaultsManager.shared
-//    
-//    init() {
-//        userDefaultsManager.setSelectedCountry(        Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true))
-//    }
+    @StateObject private var locationViewModel = Injection.shared.locationViewModel
+    
+    //
+    //    init() {
+    //        userDefaultsManager.setSelectedCountry(        Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true))
+    //    }
+    
 
+    
     var body: some View {
         NavigationStack(path: $navigationController.path) {
             TabView(selection: $selectedTab){
                 HomeView()
                     .tag(0)
-                    .environmentObject(navigationController)
+                    .environmentObject(locationViewModel)    .environmentObject(navigationController)
                     .environmentObject(userDefaultsManager)
                     .tabItem {
                         Label("Home", systemImage: "app.badge.clock.fill")
                     }
                 SearchView()
                     .tag(1)
+                    .environmentObject(locationViewModel)
                     .environmentObject(navigationController)
                     .environmentObject(userDefaultsManager)
                     .tabItem {
@@ -29,32 +34,35 @@ struct ContentView: View {
                     }
                 ProfileView()
                     .tag(2)
+                    .environmentObject(locationViewModel)
                     .environmentObject(navigationController)
                     .environmentObject(userDefaultsManager)
                     .tabItem {
                         Label("Profile", systemImage: "person")
                     }
             }
+            .onAppear {
+                UITabBar.appearance().unselectedItemTintColor = UIColor.black
+            }
+//            .accentColor(.red)
 //            .navigationTitle(getTitle(for: selectedTab))
-//            .navigationBarTitleDisplayMode(.inline)
+//            .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: Destination.self) { destination in
                 destination.destinationView.environmentObject(navigationController)
             }
         }
-
-        .onAppear {
-            UITabBar.appearance().unselectedItemTintColor = UIColor.lightGray// **Warna icon tidak aktif**
-        }
+        
+       
     }
     
     private func getTitle(for tab: Int) -> String {
-            switch tab {
-            case 0: return "Home"
-            case 1: return "Search"
-            case 2: return "Profile"
-            default: return "App"
-            }
+        switch tab {
+        case 0: return "Home"
+        case 1: return "Search"
+        case 2: return "Profile"
+        default: return "App"
         }
+    }
 }
 
 #Preview {
@@ -62,3 +70,4 @@ struct ContentView: View {
 }
 
 //ikan
+

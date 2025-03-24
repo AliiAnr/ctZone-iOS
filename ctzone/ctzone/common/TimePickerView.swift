@@ -32,7 +32,7 @@ struct TimePickerView: View {
                                         .baselineOffset(5)
                                 }
                             }
-                            Text("\(viewModel.formattedDate()), +1HR")
+                            Text("\(viewModel.formattedDate()), \(userDefaultsManager.selectedCountry?.utcInformation ?? "UTC+0")")
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(.gray)
                         }
@@ -87,7 +87,7 @@ struct TimePickerView: View {
 //                        viewModel.loadTempValues()
 //                        isPickerPresented.toggle()
 //                    }) {
-                    Text("\(viewModel.formattedDestinationDate()), +1HR")
+                    Text("\(viewModel.formattedDestinationDate()), \(location.utcInformation ?? "UTC+0")")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.gray)
                         
