@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SearchDetailView: View {
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    @EnvironmentObject var controller : NavigationViewModel
     @StateObject private var viewModel = TimePickerViewModel()
     @State private var isPinned: Bool = false
     @FocusState var isFocused: Bool
@@ -34,6 +35,7 @@ struct SearchDetailView: View {
                     Button(action: {
                         print("Save button tapped")
                         isSheetPresented.toggle()
+//                        controller.push(.test)
                     }) {
                         Text("Save")
                             .font(.headline)
@@ -81,6 +83,19 @@ struct SearchDetailView: View {
         
         .navigationTitle("Search Detail")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+
+struct Test : View {
+    
+    @EnvironmentObject var controller : NavigationViewModel
+    
+    var body: some View {
+        Button("Push") {
+            controller.popToRoot()
+        }
+        
     }
 }
 

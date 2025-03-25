@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
 //    @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    @EnvironmentObject var timeViewModel: TimeViewModel
     @State private var isSheetPresented = false
     
 //    @StateObject private var locationViewModel = Injection.shared.locationViewModel
@@ -81,6 +82,7 @@ struct ProfileView: View {
 struct CountrySelectionSheet: View {
     @Binding var isPresented: Bool
 //    @ObservedObject var viewModel: ProfileViewModel
+    @EnvironmentObject var timeViewModel: TimeViewModel
     @ObservedObject var locationViewModel: LocationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     
@@ -111,7 +113,7 @@ struct CountrySelectionSheet: View {
                                                 .font(.headline)
                                                 .foregroundColor(.black)
                                             
-                                            let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
+                                            let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat, date: timeViewModel.currentDate)
                                             
                                             HStack(spacing: 2) {
                                                 // Menampilkan waktu

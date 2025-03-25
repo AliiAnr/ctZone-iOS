@@ -207,6 +207,25 @@ struct Location: Identifiable, Codable, Hashable {
                 return (String(components[0]), String(components[1]))  // Pisahkan waktu dan AM/PM
             }
         }
+    
+    func currentTimeFormat(is24HourFormat: Bool, date: Date) -> (hourMinute: String, amPm: String?) {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(identifier: timezoneIdentifier)
+        if is24HourFormat {
+            formatter.dateFormat = "HH:mm"
+        } else {
+            formatter.dateFormat = "hh:mm a"
+        }
+        let formattedTime = formatter.string(from: date)
+        if is24HourFormat {
+            return (formattedTime, nil)
+        } else {
+            let components = formattedTime.split(separator: " ")
+            guard components.count >= 2 else { return (formattedTime, nil) }
+            return (String(components[0]), String(components[1]))
+        }
+    }
+
 
     /// **Mengembalikan waktu saat ini dalam bentuk (jam, menit)**
     func getCurrentTime() -> (hour: Int, minute: Int)? {

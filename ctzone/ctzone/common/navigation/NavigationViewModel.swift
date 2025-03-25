@@ -1,6 +1,7 @@
 import SwiftUI
 
 class NavigationViewModel: ObservableObject {
+    
     @Published var path = NavigationPath()
 
     func push(_ destination: Destination) {

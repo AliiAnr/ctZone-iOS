@@ -12,13 +12,17 @@ import Combine
 
 class LocationViewModel: ObservableObject {
     @Published var locations: [Location] = []
+    @Published var reminders: [Reminder] = []
     @Published var searchText: String = ""
     private let repository: LocationRepositoryProtocol
     
     init(repository: LocationRepositoryProtocol) {
         self.repository = repository
         loadLocations()
+        loadRemindersSortedByTimestamp()
     }
+    
+//    MARK: - Location Section
     
     func location(with id: UUID) -> Location? {
         return locations.first { $0.id == id }
@@ -63,4 +67,36 @@ class LocationViewModel: ObservableObject {
            // Refresh data setelah penghapusan
            loadLocations()
        }
+    
+    
+//    MARK: - REMINDER Section
+    
+    func loadReminders() {
+            reminders = repository.fetchAllReminders()
+        }
+        
+        func loadRemindersSortedByTimestamp() {
+            reminders = repository.fetchRemindersSortedByTimestamp()
+        }
+        
+        func addReminder(_ reminder: Reminder) {
+            let success = repository.insertReminder(reminder)
+            if success {
+                loadRemindersSortedByTimestamp()
+            }
+        }
+        
+        func removeReminder(id: UUID) {
+            let success = repository.deleteReminder(by: id)
+            if success {
+                loadRemindersSortedByTimestamp()
+            }
+        }
+        
+        func removeAllReminders() {
+            let success = repository.deleteAllReminders()
+            if success {
+                loadRemindersSortedByTimestamp()
+            }
+        }
 }

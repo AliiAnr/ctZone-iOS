@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject var locationViewModel: LocationViewModel
     @EnvironmentObject var navigationController: NavigationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    @EnvironmentObject var timeViewModel: TimeViewModel
     // Misalnya, pinnedLocations diambil dari LocationViewModel
     var pinnedLocations: [Location] {
         locationViewModel.locations.filter { $0.isPinned }
@@ -14,14 +15,13 @@ struct HomeView: View {
     // Jika nanti ada ReminderViewModel, ganti dengan data aslinya.
     // Untuk sementara, saya asumsikan ReminderSection masih menggunakan data dummy,
     // sehingga saya tetapkan reminderCount = 0 untuk menandakan tidak ada data.
-    var reminderCount: Int {
-        // Ubah sesuai implementasi ReminderSection / ReminderViewModel
-        return 0
+    var reminders: [Reminder] {
+        locationViewModel.reminders
     }
     
     // Computed property untuk menentukan apakah harus menampilkan EmptyValue
     var shouldShowEmptyState: Bool {
-        pinnedLocations.isEmpty && reminderCount == 0
+        pinnedLocations.isEmpty && reminders.isEmpty
     }
     
     var body: some View {
@@ -56,8 +56,16 @@ struct HomeView: View {
                             .ignoresSafeArea()
                         
                         VStack {
-                            PinnedSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
+//                            PinnedSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
 //                            ReminderSection()
+                            
+                            if !pinnedLocations.isEmpty {
+                                PinnedSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
+                            }
+//                            if !reminders.isEmpty {
+//                                ReminderSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
+//                            }
+                            ReminderSectionTemp()
                         }
                         .frame(maxHeight: .infinity, alignment: .top)
                         .padding(.horizontal)
@@ -147,14 +155,13 @@ private struct TopSectione: View {
 
 private struct PinnedSection: View {
     @EnvironmentObject var locationViewModel: LocationViewModel
-//    @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     @Binding var is24HourFormat: Bool
+    @EnvironmentObject var timeViewModel: TimeViewModel
     
-    // Definisikan nilai dasar dan padding
     let baseRowHeight: CGFloat = 60
-    let verticalPadding: CGFloat = 10 // 5 atas + 5 bawah
+    let verticalPadding: CGFloat = 10
     
-    
+    // Filter lokasi terpinned
     var pinnedLocations: [Location] {
         locationViewModel.locations.filter { $0.isPinned }
     }
@@ -173,57 +180,57 @@ private struct PinnedSection: View {
                             Text(location.name)
                                 .font(.headline)
                                 .foregroundColor(.primary)
-                            
-                            
-                            // Misalnya menampilkan UTC atau informasi lain jika ada
                             Text(location.utcInformation ?? "No UTC")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
                         Spacer()
-                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
-                        // Menampilkan currentTime yang didefinisikan di struct Location
-                        
-                        HStack (spacing: 2) {
+                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat, date: timeViewModel.currentDate)
+                        HStack(spacing: 2) {
                             Text(timeInfo.hourMinute)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
-                            
                             if let amPm = timeInfo.amPm {
-                                Text("\(amPm)")
-                                    .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
-                                    .foregroundColor(.blue)  // Warna AM/PM
+                                Text(amPm)
+                                    .font(.system(size: 12, weight: .light))
+                                    .foregroundColor(.blue)
                             }
-
                         }
-                        
                     }
                     .frame(minHeight: baseRowHeight)
                     .padding(.vertical, verticalPadding / 2)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .swipeActions {
                         Button(role: .destructive) {
-                            // Panggil fungsi updatePinStatus pada ViewModel untuk unpin
-                            locationViewModel.updatePinStatus(location: location, pinned: false)
+                            withAnimation(.easeInOut) {
+                                locationViewModel.updatePinStatus(location: location, pinned: false)
+                            }
                         } label: {
                             Label("Unpin", systemImage: "pin.slash")
                         }
                     }
+                    .transition(.slide)
                 }
             }
             .listStyle(PlainListStyle())
-            // Perhitungan tinggi: jumlah item * (baseRowHeight + verticalPadding)
+            // Opsional: jika ingin mengatur tinggi list secara dinamis:
             .frame(height: CGFloat(pinnedLocations.count) * (baseRowHeight + verticalPadding))
             .scrollDisabled(true)
+            .animation(.easeInOut, value: pinnedLocations)
         }
     }
 }
 
-
-
-
-private struct ReminderSection: View {
+private struct ReminderSectionTemp: View {
+    @EnvironmentObject var locationViewModel: LocationViewModel
+//    @Binding var is24HourFormat: Bool
+    
     @State var reminderTime = ["15:00","13:12"]
+    
+    var reminders: [Reminder] {
+        locationViewModel.reminders
+    }
+    
     var body: some View {
         HStack{
             Text("Reminder").font(.system(size: 24)).bold()
@@ -279,6 +286,102 @@ private struct ReminderSection: View {
                 .cornerRadius(10)
             }
         }
+    }
+}
+
+
+
+private struct ReminderSection: View {
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    @Binding var is24HourFormat: Bool
+    
+    // Mengambil reminder dari view model
+    var reminders: [Reminder] {
+        locationViewModel.reminders
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Judul section
+            HStack {
+                Text("Reminder")
+                    .font(.system(size: 24))
+                    .bold()
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            // Tampilkan reminder dalam LazyVStack
+            LazyVStack(alignment: .leading, spacing: 20) {
+                ForEach(reminders) { reminder in
+                    ReminderRow(reminder: reminder, is24HourFormat: is24HourFormat)
+                        .transition(.slide)
+                        .animation(.easeInOut, value: reminders)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+private struct ReminderRow: View {
+    var reminder: Reminder
+    var is24HourFormat: Bool
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    
+    var body: some View {
+        VStack {
+            HStack {
+                // Tampilan waktu asal (misalnya Jakarta)
+                VStack(alignment: .leading) {
+                    Text(reminder.currentFormattedTime(is24HourFormat: is24HourFormat).hourMinute)
+                        .font(.largeTitle)
+                    Text("Jakarta")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    Text("UTC+3")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                // Tampilan waktu destinasi (misalnya Argentina)
+                VStack(alignment: .trailing) {
+                    Text(reminder.destinationFormattedTime(is24HourFormat: is24HourFormat).hourMinute)
+                        .font(.largeTitle)
+                    Text("Argentina")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    Text("UTC+3")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.top, 10)
+            .padding(.horizontal, 16)
+            
+            Divider()
+                .padding(.horizontal, 16)
+            
+            HStack {
+                Text("Pergi ke pasar Argentina")
+                    .foregroundColor(.secondary)
+                Spacer()
+                Button {
+                    withAnimation(.easeInOut) {
+                        // Panggil fungsi removeReminder pada view model
+                        locationViewModel.removeReminder(id: reminder.id)
+                    }
+                } label: {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 10)
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color(UIColor.systemGray6))
+        .cornerRadius(10)
     }
 }
 

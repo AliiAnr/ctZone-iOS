@@ -11,6 +11,7 @@ struct SearchView: View {
     @EnvironmentObject var navigationController: NavigationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     //    @StateObject private var viewModel = CountryViewModel()
+    @EnvironmentObject var timeViewModel: TimeViewModel
     
     @EnvironmentObject var locationViewModel: LocationViewModel
     
@@ -33,8 +34,9 @@ struct SearchView: View {
                         
                         Button(action: {
                             print("Country selected: \(location.name)")
-                            navigationController.push(.searchDetail(location.id)
-                            )
+                            navigationController.push(.searchDetail(location.id))
+//                            navigationController.popToRoot()
+                            
                             
                         }) {
                             VStack {
@@ -44,7 +46,7 @@ struct SearchView: View {
                                             .font(.headline)
                                             .foregroundColor(.black)
                                         
-                                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
+                                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat, date: timeViewModel.currentDate)
                                         
                                         HStack(spacing: 2) {
                                             // Menampilkan waktu

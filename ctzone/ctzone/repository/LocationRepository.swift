@@ -8,13 +8,16 @@ class LocationRepository: LocationRepositoryProtocol {
         self.context = context
     }
     
+    
+    // MARK: - LOCATION SECTION
+    
     func fetchLocations() -> [LocationEntity] {
         let request: NSFetchRequest<LocationEntity> = LocationEntity.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         do {
             print("DEBUG: Fetching LocationEntity success")
             return try context.fetch(request)
-
+            
         } catch {
             print("Error fetching LocationEntity: \(error)")
             return []
@@ -37,18 +40,186 @@ class LocationRepository: LocationRepositoryProtocol {
     }
     
     func deleteLocation(withId id: UUID) {
-           let request: NSFetchRequest<LocationEntity> = LocationEntity.fetchRequest()
-           request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-           do {
-               if let entity = try context.fetch(request).first {
-                   context.delete(entity)
-                   try context.save()
-                   print("DEBUG: Successfully deleted location with id: \(id)")
-               }
-           } catch {
-               print("DEBUG: Error deleting location: \(error)")
-           }
-       }
+        let request: NSFetchRequest<LocationEntity> = LocationEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        do {
+            if let entity = try context.fetch(request).first {
+                context.delete(entity)
+                try context.save()
+                print("DEBUG: Successfully deleted location with id: \(id)")
+            }
+        } catch {
+            print("DEBUG: Error deleting location: \(error)")
+        }
+    }
+    
+    func fetchLocation(by id: UUID) -> LocationEntity? {
+        let request: NSFetchRequest<LocationEntity> = LocationEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        do {
+            return try context.fetch(request).first
+        } catch {
+            print("Error fetching location by id: \(error)")
+            return nil
+        }
+    }
+    
+    
+    //    MARK: - REMINDER SECTION
+    
+    // MARK: - Insert (WITHOUT RELATIONSHIP WITH LOCATION) -> next Fitur (User can see their list of reminder in the destination location) if needed
+    
+    func insertReminder(_ reminder: Reminder) -> Bool {
+        let entity = ReminderEntity(context: context)
+        
+        entity.id = reminder.id
+        
+        entity.currentHour = Int32(reminder.currentHour)
+        entity.currentMinute = Int32(reminder.currentMinute)
+        entity.currentDay = Int32(reminder.currentDay)
+        entity.currentMonth = Int32(reminder.currentMonth)
+        entity.currentYear = Int32(reminder.currentYear)
+        
+        entity.destinationHour = Int32(reminder.destinationHour)
+        entity.destinationMinute = Int32(reminder.destinationMinute)
+        entity.destinationDay = Int32(reminder.destinationDay)
+        entity.destinationMonth = Int32(reminder.destinationMonth)
+        entity.destinationYear = Int32(reminder.destinationYear)
+        
+        entity.timestamp = reminder.timestamp
+        
+        entity.desc = reminder.desc
+        
+        entity.currentName = reminder.currentName
+        entity.currentImage = reminder.currentImage
+        entity.currentCountry = reminder.currentCountry
+        entity.currentTimezone = reminder.currentTimezone
+        entity.currentUtc = reminder.currentUtc
+        
+        entity.destinationName = reminder.destinationName
+        entity.destinationImage = reminder.destinationImage
+        entity.destinationCountry = reminder.destinationCountry
+        entity.destinationTimezone = reminder.destinationTimezone
+        entity.destinationUtc = reminder.destinationUtc
+        
+        do {
+            try context.save()
+            print("DEBUG: Successfully insert reminder with id: \(reminder.id)")
+            return true
+        } catch {
+            print("Error inserting reminder: \(error)")
+            return false
+        }
+    }
+    
+    func fetchAllReminders() -> [Reminder] {
+        let request: NSFetchRequest<ReminderEntity> = ReminderEntity.fetchRequest()
+        do {
+            let results = try context.fetch(request)
+            return results.map { mapEntityToModel($0) }
+        } catch {
+            print("Error fetching all reminders: \(error)")
+            return []
+        }
+    }
+    
+    func deleteReminder(by id: UUID) -> Bool {
+        let request: NSFetchRequest<ReminderEntity> = ReminderEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let results = try context.fetch(request)
+            if let entityToDelete = results.first {
+                context.delete(entityToDelete)
+                try context.save()
+                return true
+            }
+        } catch {
+            print("Error deleting reminder: \(error)")
+        }
+        return false
+    }
+    
+    func deleteAllReminders() -> Bool {
+        let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "ReminderEntity")
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: request)
+        batchDelete.resultType = .resultTypeObjectIDs
+        
+        do {
+            if let result = try context.execute(batchDelete) as? NSBatchDeleteResult,
+               let objectIDs = result.result as? [NSManagedObjectID] {
+                NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+                return true
+            }
+        } catch {
+            print("Error deleting all reminders: \(error)")
+        }
+        return false
+    }
+    
+    func fetchRemindersSortedByTimestamp() -> [Reminder] {
+            let request: NSFetchRequest<ReminderEntity> = ReminderEntity.fetchRequest()
+            request.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: true)]
+            
+            do {
+                let results = try context.fetch(request)
+                return results.map { mapEntityToModel($0) }
+            } catch {
+                print("Error fetching reminders sorted by timestamp: \(error)")
+                return []
+            }
+        }
+    
+    func fetchReminder(by id: UUID) -> Reminder? {
+            let request: NSFetchRequest<ReminderEntity> = ReminderEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+            
+            do {
+                let results = try context.fetch(request)
+                if let entity = results.first {
+                    return mapEntityToModel(entity)
+                }
+            } catch {
+                print("Error fetching reminder by id: \(error)")
+            }
+            return nil
+        }
+    
+    private func mapEntityToModel(_ entity: ReminderEntity) -> Reminder {
+        return Reminder(
+            id: entity.id ?? UUID(),
+            
+            currentHour: Int(entity.currentHour),
+            currentMinute: Int(entity.currentMinute),
+            currentDay: Int(entity.currentDay),
+            currentMonth: Int(entity.currentMonth),
+            currentYear: Int(entity.currentYear),
+            
+            destinationHour: Int(entity.destinationHour),
+            destinationMinute: Int(entity.destinationMinute),
+            destinationDay: Int(entity.destinationDay),
+            destinationMonth: Int(entity.destinationMonth),
+            destinationYear: Int(entity.destinationYear),
+            
+            timestamp: entity.timestamp ?? Date(),
+            
+            desc: entity.desc,
+            
+            currentName: entity.currentName,
+            currentImage: entity.currentImage,
+            currentCountry: entity.currentCountry,
+            currentTimezone: entity.currentTimezone,
+            currentUtc: entity.currentUtc,
+            
+            destinationName: entity.destinationName,
+            destinationImage: entity.destinationImage,
+            destinationCountry: entity.destinationCountry,
+            destinationTimezone: entity.destinationTimezone,
+            destinationUtc: entity.destinationUtc
+        )
+    }
+    
+    
     
     func addDummyLocationsIfNeeded() {
         let count = fetchLocations().count
@@ -453,14 +624,4 @@ class LocationRepository: LocationRepositoryProtocol {
         }
     }
     
-    func fetchLocation(by id: UUID) -> LocationEntity? {
-        let request: NSFetchRequest<LocationEntity> = LocationEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        do {
-            return try context.fetch(request).first
-        } catch {
-            print("Error fetching location by id: \(error)")
-            return nil
-        }
-    }
 }

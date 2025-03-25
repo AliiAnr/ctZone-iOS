@@ -6,6 +6,7 @@ struct ContentView: View {
     @StateObject private var navigationController = NavigationViewModel()
     @StateObject private var userDefaultsManager = UserDefaultsManager.shared
     @StateObject private var locationViewModel = Injection.shared.locationViewModel
+    @StateObject private var timeViewModel = TimeViewModel()
     
     //
     //    init() {
@@ -21,6 +22,7 @@ struct ContentView: View {
                     .tag(0)
                     .environmentObject(locationViewModel)    .environmentObject(navigationController)
                     .environmentObject(userDefaultsManager)
+                    .environmentObject(timeViewModel)
                     .tabItem {
                         Label("Home", systemImage: "app.badge.clock.fill")
                     }
@@ -29,6 +31,7 @@ struct ContentView: View {
                     .environmentObject(locationViewModel)
                     .environmentObject(navigationController)
                     .environmentObject(userDefaultsManager)
+                    .environmentObject(timeViewModel)
                     .tabItem {
                         Label("Search", systemImage: "rectangle.and.text.magnifyingglass")
                     }
@@ -37,12 +40,13 @@ struct ContentView: View {
                     .environmentObject(locationViewModel)
                     .environmentObject(navigationController)
                     .environmentObject(userDefaultsManager)
+                    .environmentObject(timeViewModel)
                     .tabItem {
                         Label("Profile", systemImage: "person")
                     }
             }
             .onAppear {
-                UITabBar.appearance().unselectedItemTintColor = UIColor.black
+                UITabBar.appearance().unselectedItemTintColor = UIColor.lightGray
             }
 //            .accentColor(.red)
 //            .navigationTitle(getTitle(for: selectedTab))

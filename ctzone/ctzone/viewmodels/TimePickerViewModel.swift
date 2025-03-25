@@ -269,23 +269,61 @@ class TimePickerViewModel: ObservableObject {
         convertLocationTime(from: currentLocation, to: destinationLocation, year: selectedYear, month: selectedMonth, day: selectedDay, hour: selectedHour, minute: selectedMinute)
     }
     
+//    func formattedTime() -> (hourMinute: String, amPm: String?) {
+//        // Memastikan hasil ternary selalu berupa String
+//        let hour = use24HourFormat ? String(format: "%02d", selectedHour) : String(format: "%02d", (selectedHour % 12 == 0 ? 12 : selectedHour % 12))
+//        let minute = String(format: "%02d", selectedMinute)  // Memastikan menit selalu dua digit
+//        let amPm = isAM ? "AM" : "PM"
+//
+//        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
+//    }
+    
     func formattedTime() -> (hourMinute: String, amPm: String?) {
-        // Memastikan hasil ternary selalu berupa String
-        let hour = use24HourFormat ? String(format: "%02d", selectedHour) : String(selectedHour % 12 == 0 ? 12 : selectedHour % 12)
-        let minute = String(format: "%02d", selectedMinute)  // Memastikan menit selalu dua digit
-        let amPm = isAM ? "AM" : "PM"
-
-        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
+        // Misalkan selectedHour adalah jam dalam format 24 jam (contoh: 22 untuk 10 malam)
+        let hour24 = selectedHour
+        // Konversi ke format 12 jam
+        let hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12
+        // Pastikan menit selalu dua digit
+        let minute = String(format: "%02d", selectedMinute)
+        
+        // Hitung period berdasarkan selectedHour, bukan variabel isAM yang statis
+        let period = hour24 < 12 ? "AM" : "PM"
+        
+        if use24HourFormat {
+            return ("\(String(format: "%02d", hour24)):\(minute)", nil)
+        } else {
+            return ("\(String(format: "%02d", hour12)):\(minute)", period)
+        }
     }
 
+//
+//    func formattedDestinationTime() -> (hourMinute: String, amPm: String?) {
+//        // Memastikan hasil ternary selalu berupa String
+//        let hour = use24HourFormat ? String(format: "%02d", destinationHour) : String(format: "%02d" , (destinationHour % 12 == 0 ? 12 : destinationHour % 12))
+//        let minute = String(format: "%02d", destinationMinute)  // Memastikan menit selalu dua digit
+//        let amPm = isAM ? "AM" : "PM"
+//
+//        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
+//    }
+    
     func formattedDestinationTime() -> (hourMinute: String, amPm: String?) {
-        // Memastikan hasil ternary selalu berupa String
-        let hour = use24HourFormat ? String(format: "%02d", destinationHour) : String(destinationHour % 12 == 0 ? 12 : destinationHour % 12)
-        let minute = String(format: "%02d", destinationMinute)  // Memastikan menit selalu dua digit
-        let amPm = isAM ? "AM" : "PM"
-
-        return use24HourFormat ? ("\(hour):\(minute)", nil) : ("\(hour):\(minute)", amPm)
+        // Misalkan selectedHour adalah jam dalam format 24 jam (contoh: 22 untuk 10 malam)
+        let hour24 = destinationHour
+        // Konversi ke format 12 jam
+        let hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12
+        // Pastikan menit selalu dua digit
+        let minute = String(format: "%02d", destinationMinute)
+        
+        // Hitung period berdasarkan selectedHour, bukan variabel isAM yang statis
+        let period = hour24 < 12 ? "AM" : "PM"
+        
+        if use24HourFormat {
+            return ("\(String(format: "%02d", hour24)):\(minute)", nil)
+        } else {
+            return ("\(String(format: "%02d", hour12)):\(minute)", period)
+        }
     }
+
 
 
 
@@ -299,3 +337,6 @@ class TimePickerViewModel: ObservableObject {
         return "\(destinationDay)-\(destinationMonth)-\(destinationYear)"
     }
 }
+
+
+// how you describe when developing the app
