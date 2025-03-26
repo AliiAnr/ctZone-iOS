@@ -10,7 +10,6 @@ import SwiftUI
 struct SearchView: View {
     @EnvironmentObject var navigationController: NavigationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
-    //    @StateObject private var viewModel = CountryViewModel()
     @EnvironmentObject var timeViewModel: TimeViewModel
     
     @EnvironmentObject var locationViewModel: LocationViewModel
@@ -19,7 +18,6 @@ struct SearchView: View {
     
     var body: some View {
         VStack {
-            // **Search Bar Tetap di Atas**        VStack{
             Text("Search")
                 .font(.largeTitle)
                 .fontWeight(.bold)
@@ -30,7 +28,6 @@ struct SearchView: View {
             
             SearchBarView(searchText: $locationViewModel.searchText).padding(.top, -15)
             
-            // **ScrollView untuk LazyVStack**
             ScrollView {
                 
                 
@@ -41,8 +38,6 @@ struct SearchView: View {
                         Button(action: {
                             print("Country selected: \(location.name)")
                             navigationController.push(.searchDetail(location.id))
-//                            navigationController.popToRoot()
-                            
                             
                         }) {
                             VStack {
@@ -56,26 +51,17 @@ struct SearchView: View {
                                         let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
                                         
                                         HStack(spacing: 2) {
-                                            // Menampilkan waktu
                                             Text(timeInfo.hourMinute)
                                                 .font(.subheadline)
                                                 .foregroundColor(.gray)
                                             
-                                            // Menampilkan AM/PM jika ada
                                             if let amPm = timeInfo.amPm {
                                                 Text("\(amPm)")
                                                     .font(.caption)
-                                                    .fontWeight(.light)// Styling untuk AM/PM
-                                                    .foregroundColor(.gray)  // Warna AM/PM
+                                                    .fontWeight(.light)
+                                                    .foregroundColor(.gray)
                                             }
                                             
-                                            // Menampilkan informasi UTC jika ada
-                                            //                                            if let utcInfo = location.utcInformation {
-                                            //                                                Text(utcInfo)
-                                            //                                                    .font(.system(size: 10, weight: .medium))
-                                            //                                                    .foregroundColor(.blue)
-                                            //                                                    .baselineOffset(5) // Memindahkan sedikit ke atas
-                                            //                                            }
                                         }
                                     }
                                     .padding(.vertical, 5)
@@ -94,8 +80,8 @@ struct SearchView: View {
                                                 .blur(radius: 2)
                                         )
                                 }
-                                .frame(maxWidth: .infinity) // **Pastikan HStack memenuhi lebar**
-                                .contentShape(Rectangle()) // **Memastikan seluruh area bisa diklik**
+                                .frame(maxWidth: .infinity)
+                                .contentShape(Rectangle())
                                 
                                 Divider()
                             }
@@ -118,7 +104,7 @@ struct SearchBarView: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "magnifyingglass") // **Ikon di kiri**
+            Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             
             TextField("Search...", text: $searchText)
@@ -127,7 +113,7 @@ struct SearchBarView: View {
             
             if !searchText.isEmpty {
                 Button(action: {
-                    searchText = "" // **Hapus teks saat tombol ditekan**
+                    searchText = ""
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.gray)

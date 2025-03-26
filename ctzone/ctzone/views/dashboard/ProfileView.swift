@@ -1,12 +1,9 @@
 import SwiftUI
 
 struct ProfileView: View {
-//    @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     @EnvironmentObject var timeViewModel: TimeViewModel
     @State private var isSheetPresented = false
-    
-//    @StateObject private var locationViewModel = Injection.shared.locationViewModel
     
     @EnvironmentObject var locationViewModel: LocationViewModel
     
@@ -51,27 +48,11 @@ struct ProfileView: View {
                     .background(Color(UIColor.systemGray6))
                     .cornerRadius(10)
                     .padding(.bottom, 50)
-                    //                if let country = userDefaultsManager.selectedCountry {
-                    //                    Text("Selected Country: \(country.name)")
-                    //                        .font(.title2)
-                    //                        .padding()
-                    //                } else {
-                    //                    Text("No Country Selected")
-                    //                        .foregroundColor(.gray)
-                    //                        .font(.title2)
-                    //                }
                     
                     CustomButton(text: "Select Country", action: {
                         isSheetPresented.toggle()
                     })
                     
-                    //                if userDefaultsManager.selectedCountry != nil {
-                    //                    Button("Clear Selection") {
-                    //                        userDefaultsManager.clearSelectedCountry()
-                    //                    }
-                    //                    .buttonStyle(.bordered)
-                    //                    .padding()
-                    //                }
                 }
                 .onAppear{
                     is24HourFormat = userDefaultsManager.use24HourFormat
@@ -89,7 +70,6 @@ struct ProfileView: View {
 
 struct CountrySelectionSheet: View {
     @Binding var isPresented: Bool
-//    @ObservedObject var viewModel: ProfileViewModel
     @EnvironmentObject var timeViewModel: TimeViewModel
     @EnvironmentObject var locationViewModel: LocationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
@@ -101,10 +81,8 @@ struct CountrySelectionSheet: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // **Search Bar**
                 SearchBarView(searchText:$locationViewModel.searchProfileText)
                 
-                //                 **List Negara dengan LazyVStack**
                 ScrollView {
                     LazyVStack {
                         ForEach(locationViewModel.filteredProfileCountries) { location in
@@ -125,26 +103,18 @@ struct CountrySelectionSheet: View {
                                             let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
                                             
                                             HStack(spacing: 2) {
-                                                // Menampilkan waktu
+    
                                                 Text(timeInfo.hourMinute)
                                                     .font(.subheadline)
                                                     .foregroundColor(.gray)
                                                 
-                                                // Menampilkan AM/PM jika ada
                                                 if let amPm = timeInfo.amPm {
                                                     Text("\(amPm)")
                                                         .font(.caption)
-                                                        .fontWeight(.light)// Styling untuk AM/PM
-                                                        .foregroundColor(.gray)  // Warna AM/PM
+                                                        .fontWeight(.light)
+                                                        .foregroundColor(.gray)
                                                 }
                                                 
-                                                // Menampilkan informasi UTC jika ada
-//                                                if let utcInfo = location.utcInformation {
-//                                                    Text(utcInfo)
-//                                                        .font(.system(size: 10, weight: .medium))
-//                                                        .foregroundColor(.blue)
-//                                                        .baselineOffset(5) // Memindahkan sedikit ke atas
-//                                                }
                                             }
                                         }
                                         .padding(.vertical, 5)
@@ -163,8 +133,8 @@ struct CountrySelectionSheet: View {
                                                     .blur(radius: 2)
                                             )
                                     }
-                                    .frame(maxWidth: .infinity) // **Pastikan HStack memenuhi lebar**
-                                    .contentShape(Rectangle()) // **Memastikan seluruh area bisa diklik**
+                                    .frame(maxWidth: .infinity) 
+                                    .contentShape(Rectangle())
                                     
                                     Divider()
                                 }

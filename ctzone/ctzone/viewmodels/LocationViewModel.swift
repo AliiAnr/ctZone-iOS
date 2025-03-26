@@ -5,8 +5,6 @@
 //  Created by Ali An Nuur on 23/03/25.
 //
 
-// LAST NIGHT PINNED MAU NAMBAH TAPI MAGER, DAN DI ACADEMY SAJA
-
 import SwiftUI
 import Combine
 
@@ -72,9 +70,7 @@ class LocationViewModel: ObservableObject {
     }
     
     func deleteLocation(_ location: Location) {
-           // Repository melakukan penghapusan berdasarkan ID
            repository.deleteLocation(withId: location.id)
-           // Refresh data setelah penghapusan
            loadLocations()
        }
     

@@ -36,8 +36,7 @@ struct CoreDataDebugView: View {
             }
         }
     }
-    
-    // Fungsi untuk menghapus semua data dari semua entitas
+
     func deleteAllData() {
         guard let persistentStoreCoordinator = viewContext.persistentStoreCoordinator,
               let entities = persistentStoreCoordinator.managedObjectModel.entities as [NSEntityDescription]? else {
@@ -87,9 +86,6 @@ struct LocationDetailDebugView: View {
         .navigationTitle(location.name ?? "Detail Location")
     }
 }
-
-
-
 
 #Preview {
     CoreDataDebugView()

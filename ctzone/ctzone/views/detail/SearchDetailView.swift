@@ -8,10 +8,8 @@ struct SearchDetailView: View {
     @FocusState var isFocused: Bool
     @State private var isSheetPresented = false
     @EnvironmentObject var locationViewModel: LocationViewModel
-    //     let location: Location
     let locationId: UUID
     
-    // Computed property untuk mendapatkan lokasi terbaru
     var location: Location? {
         locationViewModel.location(with: locationId)
     }
@@ -22,22 +20,19 @@ struct SearchDetailView: View {
     var body: some View {
         ScrollView{
             ZStack {
-                // **Background utama yang memenuhi seluruh layar**
+
                 Color(UIColor.systemBackground)
                     .ignoresSafeArea()
                 
                 VStack() {
-                    // **Top Section**
+
                     TopSectionView(location: location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
                     
-                    
-                    // **Mid Section**
                     MidSectionView(timePickerViewModel: timePickerViewModel, location : location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
                     
                     Button(action: {
                         print("Save button tapped")
                         isSheetPresented.toggle()
-                        //                        controller.push(.test)
                     }) {
                         Text("Add as Reminder")
                             .font(.headline)
@@ -49,10 +44,6 @@ struct SearchDetailView: View {
                     .padding(.top, 50)
                     .buttonStyle(.plain)
                     
-                    // **Bottom Section**
-                    //                    BottomSectionView(isFocused: $isFocused)
-                    
-                    //                    Spacer() // **Mendorong VStack ke atas**
                 }
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding()
@@ -61,11 +52,6 @@ struct SearchDetailView: View {
         .onAppear{
             timePickerViewModel.use24HourFormat = userDefaultsManager.use24HourFormat
             
-            //            print(viewModel.formattedTime())
-            //            print(viewModel.formattedDate())
-            //
-            //            print(viewModel.formattedDestinationDate())
-            //            print(viewModel.formattedDestinationTime())
         }
         .sheet(isPresented: $isSheetPresented) {
             DescriptionSheet(isPresented: $isSheetPresented, timePickerViewModel: timePickerViewModel, location: location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
@@ -73,23 +59,21 @@ struct SearchDetailView: View {
         }
         .ignoresSafeArea(.keyboard)
         .onTapGesture {
-            isFocused = false // Menghapus fokus saat mengetuk di luar
-        }
+            isFocused = false        }
         .navigationTitle("Detail")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()  // Kembali ke tampilan sebelumnya
+                    dismiss()
                 } label: {
                     HStack {
                         Image(systemName: "chevron.left")
                             .font(.headline)
-                        Text("Search") // Ganti sesuai kebutuhan
-                    }
+                        Text("Search")                     }
                 }
-                .foregroundColor(Color("primeColor")) // Ubah warna teks & ikon di sini
+                .foregroundColor(Color("primeColor"))
             }
             
             ToolbarItem() {
@@ -118,32 +102,16 @@ struct SearchDetailView: View {
     }
 }
 
-
-struct Test : View {
-    
-    @EnvironmentObject var controller : NavigationViewModel
-    
-    var body: some View {
-        Button("Push") {
-            controller.popToRoot()
-        }
-        
-    }
-}
-
-
 private struct TopSectionView: View {
     var location: Location
     
     var body: some View {
         VStack {
-            // **Gambar dengan Aspect Ratio yang Dinamis**
             Image(location.image)
                 .resizable()
-                .scaledToFit()  // Menjaga gambar sesuai dengan ukuran
-                .aspectRatio(contentMode: .fill)  // Menjaga proporsi gambar sesuai dengan frame
-                .frame(maxWidth: 150, minHeight: 100)  // Menentukan batasan ukuran
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .scaledToFit()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: 150, minHeight: 100)                .clipShape(RoundedRectangle(cornerRadius: 10))
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.black.opacity(0.2))
@@ -159,7 +127,6 @@ private struct TopSectionView: View {
         .padding(.top, 20)
     }
 }
-
 
 private struct MidSectionView: View {
     @ObservedObject var timePickerViewModel: TimePickerViewModel
@@ -177,33 +144,8 @@ private struct MidSectionView: View {
     }
 }
 
-// **Bottom Section**
-private struct BottomSectionView: View {
-    var isFocused: FocusState<Bool>.Binding
-    var body: some View {
-        VStack {
-            DescriptionInputView(isFocused: isFocused)
-            Button(action: {
-                print("Save button tapped")
-            }) {
-                Text("Save")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color("primeColor"))
-                    .cornerRadius(10)
-                    .padding(.horizontal)
-            }
-            .padding(.top, 30)
-            .buttonStyle(.plain)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
-
 private struct DescriptionInputView: View {
-    @State private var description: String = "" // Tidak perlu default placeholder
+    @State private var description: String = ""
     var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
@@ -213,7 +155,6 @@ private struct DescriptionInputView: View {
                 .foregroundColor(.gray)
             
             ZStack(alignment: .topLeading) {
-                // **Placeholder (Hanya muncul saat teks kosong)**
                 
                 TextEditor(text: $description)
                     .frame(height: 120)
@@ -252,7 +193,6 @@ struct DescriptionSheet: View {
     @EnvironmentObject var locationViewModel: LocationViewModel
     @State private var description: String = ""
     var location : Location
-    //    @ObservedObject var viewModel: ProfileViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     
     var body: some View {
@@ -265,7 +205,7 @@ struct DescriptionSheet: View {
                     .padding(.horizontal)
                 
                 ZStack(alignment: .topLeading) {
-                    // 1) Background & Border
+
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(UIColor.secondarySystemBackground))
                         .overlay(
@@ -273,21 +213,19 @@ struct DescriptionSheet: View {
                                 .stroke(Color(UIColor.separator), lineWidth: 1)
                         )
                     
-                    // 2) TextEditor di atas background
                     TextEditor(text: $description)
-                        .padding(8)                  // pastikan padding di sini
+                        .padding(8)
                         .focused($isFocused)
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
                         .accentColor(Color("primeColor"))
-                        .foregroundColor(Color(UIColor.label))      // ganti warna teks
+                        .foregroundColor(Color(UIColor.label))
                     
-                    // 3) Placeholder
                     if description.isEmpty {
                         Text("Type Here...")
                             .foregroundColor(.primary.opacity(0.25))
                             .padding(.leading, 13)
-                            .padding(.top, 16)// samakan padding dengan TextEditor
+                            .padding(.top, 16)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }

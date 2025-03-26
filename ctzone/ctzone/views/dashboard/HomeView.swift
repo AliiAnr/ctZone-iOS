@@ -7,19 +7,14 @@ struct HomeView: View {
     @EnvironmentObject var navigationController: NavigationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     @EnvironmentObject var timeViewModel: TimeViewModel
-    // Misalnya, pinnedLocations diambil dari LocationViewModel
     var pinnedLocations: [Location] {
         locationViewModel.locations.filter { $0.isPinned }
     }
     
-    // Jika nanti ada ReminderViewModel, ganti dengan data aslinya.
-    // Untuk sementara, saya asumsikan ReminderSection masih menggunakan data dummy,
-    // sehingga saya tetapkan reminderCount = 0 untuk menandakan tidak ada data.
     var reminders: [Reminder] {
         locationViewModel.reminders
     }
     
-    // Computed property untuk menentukan apakah harus menampilkan EmptyValue
     var shouldShowEmptyState: Bool {
         pinnedLocations.isEmpty && reminders.isEmpty
     }
@@ -34,13 +29,11 @@ struct HomeView: View {
                     .padding(.vertical, 6)
                 
                 Menu {
-                    // Pilihan 24h Format
                     Button {
                         userDefaultsManager.use24HourFormat = true
                     } label: {
                         Label("24h Format", systemImage: userDefaultsManager.use24HourFormat ? "checkmark" : "")
                     }
-                    // Pilihan 12h Format
                     Button {
                         userDefaultsManager.use24HourFormat = false
                     } label: {
@@ -60,7 +53,7 @@ struct HomeView: View {
             
             
             TopSectione(
-                location: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image: "", timezoneIdentifier: "Asia/Jakarta", utcInformation: "Dummy", isCity: true, isPinned: false),
+                location: userDefaultsManager.selectedCountry ?? Location(name: "", country: "", image: "", timezoneIdentifier: "", utcInformation: "", isCity: true, isPinned: false),
                 date: userDefaultsManager.selectedDate
             )
             .id("top")
@@ -72,11 +65,8 @@ struct HomeView: View {
             Spacer()
             
             if shouldShowEmptyState {
-                //                 Tampilkan empty state di tengah layar
                 EmptyValue()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                //                Text("Empty State")
-                
                 
             } else {
                 ScrollView {
@@ -85,8 +75,6 @@ struct HomeView: View {
                             .ignoresSafeArea()
                         
                         VStack {
-                            //                            PinnedSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
-                            //                            ReminderSection()
                             
                             if !pinnedLocations.isEmpty {
                                 PinnedSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
@@ -94,7 +82,6 @@ struct HomeView: View {
                             if !reminders.isEmpty {
                                 ReminderSection(is24HourFormat: $userDefaultsManager.use24HourFormat)
                             }
-                            //                            ReminderSectionTemp()
                         }
                         .frame(maxHeight: .infinity, alignment: .top)
                         .padding(.horizontal)
@@ -151,42 +138,56 @@ private struct TopSectione: View {
     @Environment(\.colorScheme) var colorScheme
     let location: Location
     let date: String
-    //    @Binding var isPinned: Bool
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
-                Text("\(location.name), \(location.utcInformation ?? "UTC+0")")
-                    .font(.title3)
-                    .fontWeight(.medium)
-                Text(date)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+            if userDefaultsManager.selectedCountry != nil {
+                VStack(alignment: .leading) {
+                    Text("\(location.name), \(location.utcInformation ?? "")")
+                        .font(.title3)
+                        .fontWeight(.medium)
+                    Text(date)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Image(userDefaultsManager.selectedCountry?.image ?? "")
+                    .resizable()
+                    .scaledToFit()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 35, height: 35)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.black.opacity(0.2))
+                            .blur(radius: 2)
+                    )
+                    .padding(.trailing, 4)
             }
-            
-            Spacer()
-            
-            Image(userDefaultsManager.selectedCountry?.image ?? "Flag_of_Indonesia")
-                .resizable()
-                .scaledToFit()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 35, height: 35)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.2))
-                        .blur(radius: 2)
-                )
-                .padding(.trailing, 4)
             
         }
         .padding()
         .frame(maxWidth: .infinity)
+        .if(userDefaultsManager.selectedCountry == nil) { view in
+            view.frame(minHeight: 55)
+        }
         .background(Color(UIColor.systemGray6))
         .cornerRadius(10)
     }
 }
 
+extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
 
 private struct PinnedSection: View {
     @EnvironmentObject var locationViewModel: LocationViewModel
@@ -196,7 +197,6 @@ private struct PinnedSection: View {
     let baseRowHeight: CGFloat = 60
     let verticalPadding: CGFloat = 24
     
-    // Filter lokasi terpinned
     var pinnedLocations: [Location] {
         locationViewModel.locations.filter { $0.isPinned }
     }
@@ -222,9 +222,6 @@ private struct PinnedSection: View {
                                 .font(.title3)
                                 .fontWeight(.light)
                             
-                            
-                            
-                            //                            .padding(.top, 1)
                         }
                         
                         Spacer()
@@ -259,7 +256,6 @@ private struct PinnedSection: View {
                 }
             }
             .listStyle(PlainListStyle())
-            // Opsional: jika ingin mengatur tinggi list secara dinamis:
             .frame(height: CGFloat(pinnedLocations.count) * (baseRowHeight + verticalPadding))
             .scrollDisabled(true)
             .animation(.easeInOut, value: pinnedLocations)
@@ -271,7 +267,6 @@ private struct ReminderSection: View {
     @EnvironmentObject var locationViewModel: LocationViewModel
     @Binding var is24HourFormat: Bool
     
-    // Mengambil reminder dari view model
     var reminders: [Reminder] {
         locationViewModel.reminders
     }
@@ -315,10 +310,9 @@ private struct ReminderRow: View {
                     Image(systemName: "xmark")
                         .foregroundColor(.red)
                 }
-                // Pastikan tombol tidak mengganggu tap gesture row
                 .buttonStyle(BorderlessButtonStyle())
             }
-            .padding(.top, 10)
+            .padding(.top, 16)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity)
             HStack {
@@ -327,7 +321,7 @@ private struct ReminderRow: View {
                 let cDateInfo = reminder.currentFormattedDate()
                 
                 let desInfo = reminder.currentFormattedTime(is24HourFormat: is24HourFormat)
-                let dDateInfo = reminder.destinationFormattedDate()// Tampilan waktu asal (misalnya Jakarta)// Tampilan waktu asal (misalnya Jakarta)
+                let dDateInfo = reminder.destinationFormattedDate()
                 VStack(alignment: .leading) {
                     HStack (alignment: .bottom, spacing: 2){
                         Text(timeInfo.hourMinute)
@@ -348,12 +342,8 @@ private struct ReminderRow: View {
                     Text(cDateInfo)
                         .font(.subheadline)
                         .foregroundColor(.gray)
-                    //                    Text(reminder.currentTimezone ?? "default/default")
-                    //                        .font(.subheadline)
-                    //                        .foregroundColor(.gray)
                 }
                 Spacer()
-                // Tampilan waktu destinasi (misalnya Argentina)
                 VStack(alignment: .trailing) {
                     HStack (alignment: .bottom, spacing: 2){
                         Text(desInfo.hourMinute)
@@ -374,9 +364,6 @@ private struct ReminderRow: View {
                     Text(dDateInfo)
                         .font(.subheadline)
                         .foregroundColor(.gray)
-                    //                    Text(reminder.destinationTimezone ?? "default/default")
-                    //                        .font(.subheadline)
-                    //                        .foregroundColor(.gray)
                 }
             }
             .padding(.top, 5)
@@ -386,15 +373,13 @@ private struct ReminderRow: View {
                 .padding(.horizontal, 16)
             
             HStack {
-                // Teks deskripsi dengan lineLimit sehingga jika terlalu panjang akan terpotong
                 Text(reminder.desc ?? "default")
                     .foregroundColor(.secondary)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                // Ketuk teks untuk memunculkan modal detail
-
+                
                 Spacer()
-
+                
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 10)
@@ -406,7 +391,6 @@ private struct ReminderRow: View {
         .frame(maxWidth: .infinity)
         .background(Color(UIColor.systemGray6))
         .cornerRadius(10)
-        // Tambahkan sheet untuk menampilkan modal detail ketika isShowingDetail true
         .sheet(isPresented: $isShowingDetail) {
             ReminderDetailView(reminder: reminder)
                 .presentationDetents([.medium])
@@ -416,8 +400,7 @@ private struct ReminderRow: View {
 
 struct ReminderDetailView: View {
     var reminder: Reminder
-    
-    // Untuk menutup sheet
+
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -428,9 +411,7 @@ struct ReminderDetailView: View {
                     Text("Description")
                         .font(.headline)
                     
-                    // Bungkus teks deskripsi dalam ZStack + background agar mirip tampilan "text field"
                     ZStack(alignment: .topLeading) {
-                        // Background & Border sama seperti TextEditor
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color(UIColor.secondarySystemBackground))
                             .overlay(
@@ -438,7 +419,6 @@ struct ReminderDetailView: View {
                                     .stroke(Color(UIColor.separator), lineWidth: 1)
                             )
                         
-                        // Tampilkan isi deskripsi, atau placeholder jika kosong
                         if let desc = reminder.desc, !desc.isEmpty {
                             Text(desc)
                                 .foregroundColor(.primary)
@@ -449,7 +429,7 @@ struct ReminderDetailView: View {
                                 .padding(8)
                         }
                     }
-                    .frame(minHeight: 120) // atur tinggi minimal agar konsisten
+                    .frame(minHeight: 120)
                 }
                 .padding()
             }
@@ -471,32 +451,5 @@ struct ReminderDetailView: View {
     }
 }
 
-private struct pinnedList: View {
-    
-    let location: String
-    let utcInformation: String
-    let time: String
-    
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("\(location)")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Text("UTC+3")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-            
-            Spacer()
-            
-            Text("15:00")
-                .font(.system(size: 44, weight: .light))
-        }
-        
-    }
-    
-}
 
 

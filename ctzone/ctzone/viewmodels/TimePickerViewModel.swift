@@ -18,7 +18,6 @@ class TimePickerViewModel: ObservableObject {
     @Published var isAM: Bool
     @Published var use24HourFormat: Bool = true
 
-    // Variabel sementara sebelum menyimpan
     @Published var tempHour: Int
     @Published var tempMinute: Int
     @Published var tempIsAM: Bool
@@ -39,7 +38,6 @@ class TimePickerViewModel: ObservableObject {
         let month = components.month ?? 1
         let year = components.year ?? 2020
 
-        // **Inisialisasi waktu awal untuk lokasi utama**
         selectedHour = hour
         selectedMinute = minute
         isAM = isAMValue
@@ -47,14 +45,12 @@ class TimePickerViewModel: ObservableObject {
         selectedMonth = month
         selectedYear = year
 
-        // **Inisialisasi waktu awal untuk destinasi (default ke waktu saat ini)**
         destinationHour = hour
         destinationMinute = minute
         destinationDay = day
         destinationMonth = month
         destinationYear = year
 
-        // **Inisialisasi variabel sementara**
         tempHour = hour
         tempMinute = minute
         tempIsAM = isAMValue
@@ -62,14 +58,8 @@ class TimePickerViewModel: ObservableObject {
         tempMonth = month
         tempYear = year
         
-//        print(formattedTime())
-//        print(formattedDate())
-//        
-//        print(formattedDestinationDate())
-//        print(formattedDestinationTime())
     }
 
-    /// **Mengupdate waktu sesuai dengan lokasi yang dipilih**
     func updateTimeBasedOnLocation(_ location: Location) {
         guard let timeZone = location.timeZone else { return }
 
@@ -83,7 +73,6 @@ class TimePickerViewModel: ObservableObject {
 
         let isAMValue = hour < 12
 
-        // **Mengupdate waktu terpilih**
         selectedHour = hour
         selectedMinute = minute
         isAM = isAMValue
@@ -91,7 +80,6 @@ class TimePickerViewModel: ObservableObject {
         selectedMonth = month
         selectedYear = year
 
-        // **Mengupdate variabel sementara**
         tempHour = hour
         tempMinute = minute
         tempIsAM = isAMValue
@@ -100,7 +88,6 @@ class TimePickerViewModel: ObservableObject {
         tempYear = year
     }
 
-    /// **Mengupdate waktu destinasi sesuai dengan lokasi yang dipilih**
     func getDestinationCountryTime(_ location: Location) {
         guard let timeZone = location.timeZone else { return }
 
@@ -166,7 +153,6 @@ class TimePickerViewModel: ObservableObject {
                     return
                 }
 
-                // **Mengupdate variabel tujuan**
                 destinationYear = convertedYear
                 destinationMonth = convertedMonth
                 destinationDay = convertedDay
@@ -209,7 +195,6 @@ class TimePickerViewModel: ObservableObject {
         getDestinationCountryTime(destinationTime)
     }
 
-    /// **Validasi Tanggal & Waktu Tidak Boleh di Masa Lalu**
     func validateDateTime() {
         let now = Date()
         let nowComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
@@ -285,14 +270,10 @@ class TimePickerViewModel: ObservableObject {
 //    }
     
     func formattedTime() -> (hourMinute: String, amPm: String?) {
-        // Misalkan selectedHour adalah jam dalam format 24 jam (contoh: 22 untuk 10 malam)
         let hour24 = selectedHour
-        // Konversi ke format 12 jam
         let hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12
-        // Pastikan menit selalu dua digit
         let minute = String(format: "%02d", selectedMinute)
         
-        // Hitung period berdasarkan selectedHour, bukan variabel isAM yang statis
         let period = hour24 < 12 ? "AM" : "PM"
         
         if use24HourFormat {
@@ -313,14 +294,10 @@ class TimePickerViewModel: ObservableObject {
 //    }
     
     func formattedDestinationTime() -> (hourMinute: String, amPm: String?) {
-        // Misalkan selectedHour adalah jam dalam format 24 jam (contoh: 22 untuk 10 malam)
         let hour24 = destinationHour
-        // Konversi ke format 12 jam
         let hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12
-        // Pastikan menit selalu dua digit
         let minute = String(format: "%02d", destinationMinute)
         
-        // Hitung period berdasarkan selectedHour, bukan variabel isAM yang statis
         let period = hour24 < 12 ? "AM" : "PM"
         
         if use24HourFormat {
@@ -329,11 +306,6 @@ class TimePickerViewModel: ObservableObject {
             return ("\(String(format: "%02d", hour12)):\(minute)", period)
         }
     }
-
-
-
-
-    
 
     func formattedDate() -> String {
         return "\(selectedDay)-\(selectedMonth)-\(selectedYear)"
@@ -344,5 +316,3 @@ class TimePickerViewModel: ObservableObject {
     }
 }
 
-
-// how you describe when developing the app

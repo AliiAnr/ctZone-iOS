@@ -17,7 +17,6 @@ struct ctzoneApp: App {
     
     var body: some Scene {
         WindowGroup {
-//            MainContentView()
            ContentView()
                 .environmentObject(locationViewModel)
                 .environmentObject(userDefaultsManager)
@@ -26,36 +25,3 @@ struct ctzoneApp: App {
         }
     }
 }
-
-//struct MainContentView: View {
-//    @StateObject private var userDefaultsManager = UserDefaultsManager.shared
-//    @StateObject private var locationViewModel = Injection.shared.locationViewModel
-//    @StateObject private var timeViewModel = TimeViewModel()
-//    @StateObject private var navigationController = NavigationViewModel()
-//    
-//    var body: some View {
-//        NavigationStack(path: $navigationController.path) {
-//        if userDefaultsManager.hasSeenOnboarding{
-//            ContentView()
-//                .environmentObject(locationViewModel)
-//                .environmentObject(userDefaultsManager)
-//                .environmentObject(navigationController)
-//                .environmentObject(timeViewModel)
-//            
-//        } else {
-//            OnBoarding1View()
-//                .environmentObject(locationViewModel)
-//                .environmentObject(userDefaultsManager)
-//                .environmentObject(navigationController)
-//                .environmentObject(timeViewModel)
-//        }
-//            
-//        
-//    }
-//    
-//}
-//
-//#Preview {
-//    MainContentView()
-//}
-

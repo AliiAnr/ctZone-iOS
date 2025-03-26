@@ -10,7 +10,6 @@ import SwiftUI
 struct OnBoarding1View: View {
     @Binding var showOnboarding: Bool
     @State private var isSheetPresented = false
-//    @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     @EnvironmentObject var timeViewModel: TimeViewModel
     @EnvironmentObject var locationViewModel: LocationViewModel
@@ -30,7 +29,6 @@ struct OnBoarding1View: View {
                 .padding(.vertical)
             Button(action: {
                 isSheetPresented.toggle()
-                // Add your desired action here
             }) {
                 VStack(spacing: 20) {
                     HStack{
@@ -105,10 +103,9 @@ struct CountrySelectionSheets: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // **Search Bar**
+
                 SearchBarView(searchText:$locationViewModel.searchProfileText)
                 
-//                 **List Negara dengan LazyVStack**
                 ScrollView {
                     LazyVStack {
                         ForEach(locationViewModel.filteredProfileCountries) { location in
@@ -144,8 +141,8 @@ struct CountrySelectionSheets: View {
                                                     .blur(radius: 2)
                                             )
                                     }
-                                    .frame(maxWidth: .infinity) // **Pastikan HStack memenuhi lebar**
-                                    .contentShape(Rectangle()) // **Memastikan seluruh area bisa diklik**
+                                    .frame(maxWidth: .infinity)
+                                    .contentShape(Rectangle())
                                     
                                     Divider()
                                 }
@@ -163,12 +160,3 @@ struct CountrySelectionSheets: View {
         }
     }
 }
-
-//#Preview {
-//    OnBoarding1View()
-//        .environmentObject(UserDefaultsManager.shared)
-//        .environmentObject(Injection.shared.locationViewModel)
-//        .environmentObject(NavigationViewModel())
-//        .environmentObject(TimeViewModel())
-//}
-

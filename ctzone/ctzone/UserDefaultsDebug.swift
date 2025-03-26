@@ -13,7 +13,6 @@ struct UserDefaultsDetailView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 24) {
-                // Tampilan data user defaults
                 VStack(alignment: .leading, spacing: 8) {
                     Text("User Defaults")
                         .font(.title)
@@ -43,12 +42,6 @@ struct UserDefaultsDetailView: View {
                         Spacer()
                         Text(userDefaultsManager.selectedDate)
                     }
-                    HStack {
-                        Text("Has seen onboarding:")
-                            .fontWeight(.semibold)
-                        Spacer()
-                        Text(userDefaultsManager.hasSeenOnboarding ? "Yes" : "No")
-                    }
                 }
                 .padding()
                 .background(Color(UIColor.secondarySystemBackground))
@@ -57,7 +50,6 @@ struct UserDefaultsDetailView: View {
                 
                 Spacer()
                 
-                // Tombol reset seluruh data
                 Button(action: {
                     userDefaultsManager.resetUserDefaults()
                 }) {
