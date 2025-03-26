@@ -8,36 +8,43 @@ final class UserDefaultsManager: ObservableObject {
     
     // Enum untuk key-string agar lebih terstruktur
     private enum Keys {
-        static let use24HourFormat = "use24HourFormat"
-        static let selectedCountry = "selectedCountry"
-        static let selectedDate = "selectedDate"
-    }
-    
-    @Published var use24HourFormat: Bool {
-        didSet {
-            defaults.set(use24HourFormat, forKey: Keys.use24HourFormat)
-        }
-    }
-    
-    @Published var selectedCountry: Location? {
-        didSet {
-            saveSelectedCountry()
-            // Update tanggal berdasarkan lokasi yang dipilih setiap kali ada perubahan
-            updateDateBasedOnSelectedLocation()
-        }
-    }
-    
-    @Published var selectedDate: String {
-        didSet {
-            defaults.set(selectedDate, forKey: Keys.selectedDate)
-        }
-    }
-    
-    private init() {
-        self.use24HourFormat = defaults.bool(forKey: Keys.use24HourFormat)
-        self.selectedCountry = Self.loadSelectedCountry(from: defaults)
-        self.selectedDate = defaults.string(forKey: Keys.selectedDate) ?? Self.getCurrentDate()
-    }
+           static let hasSeenOnboarding = "hasSeenOnboarding"
+           static let use24HourFormat = "use24HourFormat"
+           static let selectedCountry = "selectedCountry"
+           static let selectedDate = "selectedDate"
+       }
+       
+       @Published var hasSeenOnboarding: Bool {
+           didSet {
+               defaults.set(hasSeenOnboarding, forKey: Keys.hasSeenOnboarding)
+           }
+       }
+       
+       @Published var use24HourFormat: Bool {
+           didSet {
+               defaults.set(use24HourFormat, forKey: Keys.use24HourFormat)
+           }
+       }
+       
+       @Published var selectedCountry: Location? {
+           didSet {
+               saveSelectedCountry()
+               updateDateBasedOnSelectedLocation()
+           }
+       }
+       
+       @Published var selectedDate: String {
+           didSet {
+               defaults.set(selectedDate, forKey: Keys.selectedDate)
+           }
+       }
+       
+       private init() {
+           self.hasSeenOnboarding = defaults.bool(forKey: Keys.hasSeenOnboarding)
+           self.use24HourFormat = defaults.bool(forKey: Keys.use24HourFormat)
+           self.selectedCountry = Self.loadSelectedCountry(from: defaults)
+           self.selectedDate = defaults.string(forKey: Keys.selectedDate) ?? Self.getCurrentDate()
+       }
     
     private func saveSelectedCountry() {
         guard let country = selectedCountry else {

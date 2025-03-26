@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchDetailView: View {
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     @EnvironmentObject var controller : NavigationViewModel
-    @StateObject private var viewModel = TimePickerViewModel()
+    @StateObject private var timePickerViewModel = TimePickerViewModel()
     @State private var isPinned: Bool = false
     @FocusState var isFocused: Bool
     @State private var isSheetPresented = false
@@ -15,6 +15,8 @@ struct SearchDetailView: View {
     var location: Location? {
         locationViewModel.location(with: locationId)
     }
+    
+    @Environment(\.dismiss) private var dismiss
     
     
     var body: some View {
@@ -30,22 +32,20 @@ struct SearchDetailView: View {
                     
                     
                     // **Mid Section**
-                    MidSectionView(viewModel: viewModel, location : location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
+                    MidSectionView(timePickerViewModel: timePickerViewModel, location : location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
                     
                     Button(action: {
                         print("Save button tapped")
                         isSheetPresented.toggle()
-//                        controller.push(.test)
+                        //                        controller.push(.test)
                     }) {
-                        Text("Save")
+                        Text("Add as Reminder")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .padding(.horizontal)
-                    }
+                            .background(Color("primeColor"))
+                        .cornerRadius(10)                    }
                     .padding(.top, 50)
                     .buttonStyle(.plain)
                     
@@ -59,17 +59,52 @@ struct SearchDetailView: View {
             }
         }
         .onAppear{
-            viewModel.use24HourFormat = userDefaultsManager.use24HourFormat
+            timePickerViewModel.use24HourFormat = userDefaultsManager.use24HourFormat
+            
+            //            print(viewModel.formattedTime())
+            //            print(viewModel.formattedDate())
+            //
+            //            print(viewModel.formattedDestinationDate())
+            //            print(viewModel.formattedDestinationTime())
         }
         .sheet(isPresented: $isSheetPresented) {
-            DescriptionSheet(isPresented: $isSheetPresented)
+            DescriptionSheet(isPresented: $isSheetPresented, timePickerViewModel: timePickerViewModel, location: location ?? Location(name: "Argentina", country: "Argentina", image: "argentina_image", timezoneIdentifier: "America/Argentina/Buenos_Aires", utcInformation: "UTC-3", isCity: false))
                 .presentationDetents([.medium])
         }
         .ignoresSafeArea(.keyboard)
         .onTapGesture {
             isFocused = false // Menghapus fokus saat mengetuk di luar
         }
+        .navigationTitle("Detail")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()  // Kembali ke tampilan sebelumnya
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .font(.headline)
+                        Text("Search") // Ganti sesuai kebutuhan
+                    }
+                }
+                .foregroundColor(Color("primeColor")) // Ubah warna teks & ikon di sini
+            }
+            
+            ToolbarItem() {
+                Button(action: {
+                    timePickerViewModel.resetToCurrentTime(
+                        currentTime: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true),
+                        destinationTime: location ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true)
+                    )
+                }) {
+                    Text("Reset")
+                        .font(.headline)
+                        .foregroundColor(.red)
+                }
+            }
+            
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     if let loc = location {
@@ -80,9 +115,6 @@ struct SearchDetailView: View {
                         .foregroundColor((location?.isPinned ?? false) ? .yellow : .primary)
                 }                }
         }
-        
-        .navigationTitle("Search Detail")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -130,14 +162,14 @@ private struct TopSectionView: View {
 
 
 private struct MidSectionView: View {
-    @ObservedObject var viewModel: TimePickerViewModel
+    @ObservedObject var timePickerViewModel: TimePickerViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     let location: Location
     
     var body: some View {
         VStack {
             HStack {
-                TimePickerView(viewModel: viewModel, location: location)
+                TimePickerView(timePickerViewModel: timePickerViewModel, location: location)
             }
         }
         .frame(maxWidth: .infinity)
@@ -159,7 +191,7 @@ private struct BottomSectionView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.blue)
+                    .background(Color("primeColor"))
                     .cornerRadius(10)
                     .padding(.horizontal)
             }
@@ -216,7 +248,10 @@ private struct DescriptionInputView: View {
 struct DescriptionSheet: View {
     @Binding var isPresented: Bool
     @FocusState var isFocused: Bool
+    @ObservedObject var timePickerViewModel: TimePickerViewModel
+    @EnvironmentObject var locationViewModel: LocationViewModel
     @State private var description: String = ""
+    var location : Location
     //    @ObservedObject var viewModel: ProfileViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     
@@ -230,52 +265,85 @@ struct DescriptionSheet: View {
                     .padding(.horizontal)
                 
                 ZStack(alignment: .topLeading) {
-                    // **Placeholder (Hanya muncul saat teks kosong)**
-                    
-                    TextEditor(text: $description)
-                        .frame(height: 120)
-                        .padding(8)
-                        .background(Color.white)
-                        .cornerRadius(10)
+                    // 1) Background & Border
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(UIColor.secondarySystemBackground))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(Color(UIColor.separator), lineWidth: 1)
                         )
-                        .focused($isFocused)
                     
+                    // 2) TextEditor di atas background
+                    TextEditor(text: $description)
+                        .padding(8)                  // pastikan padding di sini
+                        .focused($isFocused)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
+                        .accentColor(Color("primeColor"))
+                        .foregroundColor(Color(UIColor.label))      // ganti warna teks
+                    
+                    // 3) Placeholder
                     if description.isEmpty {
                         Text("Type Here...")
-                            .foregroundColor(Color.primary.opacity(0.25))
-                            .padding(EdgeInsets(top: 12, leading: 10, bottom: 0, trailing: 0))
-                            .padding(5)
+                            .foregroundColor(.primary.opacity(0.25))
+                            .padding(.leading, 13)
+                            .padding(.top, 16)// samakan padding dengan TextEditor
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    
                 }
+                .frame(height: 120)
                 .padding(.horizontal)
-                .onAppear {
-                    UITextView.appearance().backgroundColor = .clear
-                    UITextView.appearance().tintColor = UIColor.black
-                }
-                .onDisappear {
-                    UITextView.appearance().backgroundColor = nil
-                }
-                
                 Spacer()
                 
                 Button(action: {
                     print("Save button tapped")
+                    locationViewModel.addReminder(
+                        Reminder (
+                            id : UUID(),
+                            
+                            currentHour: timePickerViewModel.selectedHour,
+                            currentMinute: timePickerViewModel.selectedMinute,
+                            currentDay: timePickerViewModel.selectedDay,
+                            currentMonth: timePickerViewModel.selectedMonth,
+                            currentYear: timePickerViewModel.selectedYear,
+                            
+                            destinationHour: timePickerViewModel.destinationHour,
+                            destinationMinute: timePickerViewModel.destinationMinute,
+                            destinationDay: timePickerViewModel.destinationDay,
+                            destinationMonth: timePickerViewModel.destinationMonth,
+                            destinationYear: timePickerViewModel.destinationYear,
+                            
+                            timestamp: Date(),
+                            
+                            desc: description,
+                            
+                            currentName: userDefaultsManager.selectedCountry?.name,
+                            currentImage: userDefaultsManager.selectedCountry?.image,
+                            currentCountry: userDefaultsManager.selectedCountry?.country,
+                            currentTimezone: userDefaultsManager.selectedCountry?.timezoneIdentifier,
+                            currentUtc: userDefaultsManager.selectedCountry?.utcInformation,
+                            
+                            destinationName: location.name,
+                            destinationImage: location.image,
+                            destinationCountry: location.country,
+                            destinationTimezone: location.timezoneIdentifier,
+                            destinationUtc: location.utcInformation
+                        )
+                        
+                        
+                        
+                    )
                     isPresented.toggle()
                     
                 }) {
-                    Text("Save")
+                    Text("Add")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.blue)
+                        .background(Color("primeColor"))
                         .cornerRadius(10)
-                        .padding(.horizontal)
-                }
+                    .padding(.horizontal)                }
                 .buttonStyle(.plain)
                 
                 Button("Cancel") {

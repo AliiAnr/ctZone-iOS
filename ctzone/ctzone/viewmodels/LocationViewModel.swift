@@ -13,6 +13,7 @@ import Combine
 class LocationViewModel: ObservableObject {
     @Published var locations: [Location] = []
     @Published var reminders: [Reminder] = []
+    @Published var searchProfileText: String = ""
     @Published var searchText: String = ""
     private let repository: LocationRepositoryProtocol
     
@@ -58,6 +59,15 @@ class LocationViewModel: ObservableObject {
             return sortedCountries
         } else {
             return sortedCountries.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+    }
+    
+    var filteredProfileCountries: [Location] {
+        let sortedCountries = locations.sorted { $0.name < $1.name }
+        if searchProfileText.isEmpty {
+            return sortedCountries
+        } else {
+            return sortedCountries.filter { $0.name.localizedCaseInsensitiveContains(searchProfileText) }
         }
     }
     

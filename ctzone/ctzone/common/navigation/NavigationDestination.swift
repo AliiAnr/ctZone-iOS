@@ -13,6 +13,7 @@ enum Destination: NavigationDestinationProtocol {
     case searchDetail(UUID)
     case search
     case test
+    case dashboard
     
     var title: String {
         switch self {
@@ -22,9 +23,10 @@ enum Destination: NavigationDestinationProtocol {
             return "Search Detail"
         case .search:
             return "Search"
-            
         case .test:
             return "Test"
+        case .dashboard:
+            return "Dashboard"
         }
     }
     
@@ -38,7 +40,12 @@ enum Destination: NavigationDestinationProtocol {
                 .environmentObject(UserDefaultsManager.shared)
         case .search:
             SearchView()
-            
+        case .dashboard:
+            ContentView()
+                .environmentObject(Injection.shared.locationViewModel)
+                .environmentObject(UserDefaultsManager.shared)
+                .environmentObject(TimeViewModel())
+                .environmentObject(NavigationViewModel())
         case .test:
             Test()
         }

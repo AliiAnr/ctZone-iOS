@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TimePickerView: View {
-    @ObservedObject var viewModel : TimePickerViewModel
+    @ObservedObject var timePickerViewModel : TimePickerViewModel
     @EnvironmentObject var userDefaultsManager : UserDefaultsManager
     @State private var isPickerPresented = false
     var location : Location
@@ -9,14 +9,14 @@ struct TimePickerView: View {
     let hapticFeedback = UIImpactFeedbackGenerator(style: .light)
     
     var body: some View {
-        let formattedTime = viewModel.formattedTime()
-        let formattedDestinationTime = viewModel.formattedDestinationTime()
+        let formattedTime = timePickerViewModel.formattedTime()
+        let formattedDestinationTime = timePickerViewModel.formattedDestinationTime()
         
         VStack {
             HStack {
                 VStack(alignment: .leading){
                     Button(action: {
-                        viewModel.loadTempValues()
+                        timePickerViewModel.loadTempValues()
                         isPickerPresented.toggle()
                     }) {
                         VStack(alignment: .leading){
@@ -28,14 +28,17 @@ struct TimePickerView: View {
                         
                                 if let amPm = formattedTime.amPm {
                                     Text(amPm)
-                                        .font(.system(size: 20, weight: .light))                             .foregroundColor(.blue)
+                                        .font(.system(size: 20, weight: .light))                             .foregroundColor(Color(UIColor.label))
                                         .baselineOffset(5)
                                 }
                             }
-                            Text("\(viewModel.formattedDate()), \(userDefaultsManager.selectedCountry?.utcInformation ?? "UTC+0")")
+                            Text("\(timePickerViewModel.formattedDate()), \(userDefaultsManager.selectedCountry?.utcInformation ?? "UTC+0")")
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(.gray)
                         }
+                        .padding(15)
+                        .background(Color(UIColor.systemGray6))
+                        .cornerRadius(10)
                     }
                     
 //                    Button(action: {
@@ -49,17 +52,26 @@ struct TimePickerView: View {
                 }
                 
                 Spacer()
-                Button(action: {
-                    viewModel.resetToCurrentTime(currentTime: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true), destinationTime: location)
-                }) {
-                    Image(systemName: "arrow.clockwise")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(.blue)
-                }
+//                Button(action: {
+//                    timePickerViewModel.resetToCurrentTime(
+//                        currentTime: userDefaultsManager.selectedCountry ?? Location(name: "Jakarta", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Jakarta", utcInformation:"", isCity: true),
+//                        destinationTime: location
+//                    )
+//                }) {
+//                    Image(systemName: "arrow.trianglehead.clockwise.rotate.90")
+//                        .resizable()
+//                        .scaledToFit()
+//                        .frame(width: 24, height: 24)
+//                        .foregroundColor(Color(UIColor.label))
+//                        .padding(.init(top: 6, leading: 6, bottom: 6, trailing: 4)) // Memberikan ruang agar background bulat terlihat
+//                        .background(
+//                            Circle()
+//                                .fill(Color(.systemGray6))
+//                        )
+//                }
+//                
+//                Spacer()
                 
-                Spacer()
                 VStack(alignment: .trailing){
 //                    Button(action: {
 //                        viewModel.loadTempValues()
@@ -74,7 +86,7 @@ struct TimePickerView: View {
                         // **Teks AM/PM Jika Menggunakan Format 12 Jam**
                         if let amPm = formattedDestinationTime.amPm {
                             Text(amPm)
-                                .font(.system(size: 20, weight: .light))                                .foregroundColor(.blue)
+                                .font(.system(size: 20, weight: .light))                                .foregroundColor(Color("primeColor"))
                                 .baselineOffset(5)
                         }
                     }
@@ -87,7 +99,7 @@ struct TimePickerView: View {
 //                        viewModel.loadTempValues()
 //                        isPickerPresented.toggle()
 //                    }) {
-                    Text("\(viewModel.formattedDestinationDate()), \(location.utcInformation ?? "UTC+0")")
+                    Text("\(timePickerViewModel.formattedDestinationDate()), \(location.utcInformation ?? "UTC+0")")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.gray)
                         
@@ -101,33 +113,39 @@ struct TimePickerView: View {
             
         }
         .onAppear {
-            viewModel.updateTimeBasedOnLocation(userDefaultsManager.selectedCountry ?? Location(name: "Denpasar", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Makassar", utcInformation:"", isCity: true))
+            timePickerViewModel.updateTimeBasedOnLocation(userDefaultsManager.selectedCountry ?? Location(name: "Denpasar", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Makassar", utcInformation:"", isCity: true))
             
-            viewModel.getDestinationCountryTime(location)
+            timePickerViewModel.getDestinationCountryTime(location)
+            
+            print(timePickerViewModel.formattedTime())
+            print(timePickerViewModel.formattedDate())
+            
+            print(timePickerViewModel.formattedDestinationDate())
+            print(timePickerViewModel.formattedDestinationTime())
         }
         .sheet(isPresented: $isPickerPresented) {
             VStack {
-                Text("Pilih Waktu & Tanggal")
+                Text("Select Date & Time")
                     .font(.headline)
                     .padding()
                 
                 // **Time Picker**
                 HStack {
-                    Picker(selection: $viewModel.tempHour, label: Text("Hour")) {
-                        ForEach(viewModel.use24HourFormat ? Array(0..<24) : Array(1...12), id: \.self) { hour in
+                    Picker(selection: $timePickerViewModel.tempHour, label: Text("Hour")) {
+                        ForEach(timePickerViewModel.use24HourFormat ? Array(0..<24) : Array(1...12), id: \.self) { hour in
                             Text("\(hour)").tag(hour)
                         }
                     }
                     .frame(width: 80, height: 150)
                     .clipped()
                     .pickerStyle(.wheel)
-                    .onChange(of: viewModel.tempHour) { _, _ in
-                        viewModel.validateDateTime()
+                    .onChange(of: timePickerViewModel.tempHour) { _, _ in
+                        timePickerViewModel.validateDateTime()
                     }
                     
                     Text(":").font(.title)
                     
-                    Picker(selection: $viewModel.tempMinute, label: Text("Minute")) {
+                    Picker(selection: $timePickerViewModel.tempMinute, label: Text("Minute")) {
                         ForEach(0..<60, id: \.self) { minute in
                             Text(String(format: "%02d", minute)).tag(minute)
                         }
@@ -135,20 +153,20 @@ struct TimePickerView: View {
                     .frame(width: 80, height: 150)
                     .clipped()
                     .pickerStyle(.wheel)
-                    .onChange(of: viewModel.tempMinute) { _, _ in
-                        viewModel.validateDateTime()
+                    .onChange(of: timePickerViewModel.tempMinute) { _, _ in
+                        timePickerViewModel.validateDateTime()
                     }
                     
-                    if !viewModel.use24HourFormat {
-                        Picker(selection: $viewModel.tempIsAM, label: Text("AM/PM")) {
+                    if !timePickerViewModel.use24HourFormat {
+                        Picker(selection: $timePickerViewModel.tempIsAM, label: Text("AM/PM")) {
                             Text("AM").tag(true)
                             Text("PM").tag(false)
                         }
                         .frame(width: 80, height: 150)
                         .clipped()
                         .pickerStyle(.wheel)
-                        .onChange(of: viewModel.tempIsAM) { _, _ in
-                            viewModel.validateDateTime()
+                        .onChange(of: timePickerViewModel.tempIsAM) { _, _ in
+                            timePickerViewModel.validateDateTime()
                         }
                     }
                 }
@@ -158,19 +176,19 @@ struct TimePickerView: View {
                 
                 // **Date Picker**
                 HStack {
-                    Picker(selection: $viewModel.tempDay, label: Text("Day")) {
-                        ForEach(1...viewModel.daysInMonth(month: viewModel.tempMonth, year: viewModel.tempYear), id: \.self) { day in
+                    Picker(selection: $timePickerViewModel.tempDay, label: Text("Day")) {
+                        ForEach(1...timePickerViewModel.daysInMonth(month: timePickerViewModel.tempMonth, year: timePickerViewModel.tempYear), id: \.self) { day in
                             Text("\(day)").tag(day)
                         }
                     }
                     .frame(width: 80, height: 150)
                     .clipped()
                     .pickerStyle(.wheel)
-                    .onChange(of: viewModel.tempDay) { _, _ in
-                        viewModel.validateDateTime()
+                    .onChange(of: timePickerViewModel.tempDay) { _, _ in
+                        timePickerViewModel.validateDateTime()
                     }
                     
-                    Picker(selection: $viewModel.tempMonth, label: Text("Month")) {
+                    Picker(selection: $timePickerViewModel.tempMonth, label: Text("Month")) {
                         ForEach(1...12, id: \.self) { month in
                             Text("\(month)").tag(month)
                         }
@@ -178,12 +196,12 @@ struct TimePickerView: View {
                     .frame(width: 100, height: 150)
                     .clipped()
                     .pickerStyle(.wheel)
-                    .onChange(of: viewModel.tempMonth) { _, _ in
-                        viewModel.validateDay()
-                        viewModel.validateDateTime()
+                    .onChange(of: timePickerViewModel.tempMonth) { _, _ in
+                        timePickerViewModel.validateDay()
+                        timePickerViewModel.validateDateTime()
                     }
                     
-                    Picker(selection: $viewModel.tempYear, label: Text("Year")) {
+                    Picker(selection: $timePickerViewModel.tempYear, label: Text("Year")) {
                         ForEach(2020...2030, id: \.self) { year in
                             Text("\(year)").tag(year)
                         }
@@ -191,16 +209,16 @@ struct TimePickerView: View {
                     .frame(width: 100, height: 150)
                     .clipped()
                     .pickerStyle(.wheel)
-                    .onChange(of: viewModel.tempYear) { _, _ in
-                        viewModel.validateDay()
-                        viewModel.validateDateTime()
+                    .onChange(of: timePickerViewModel.tempYear) { _, _ in
+                        timePickerViewModel.validateDay()
+                        timePickerViewModel.validateDateTime()
                     }
                 }
                 .padding()
                 
                 Button(action: {
 //                    viewModel.saveTime()
-                    viewModel.saveDestinationTime(userDefaultsManager.selectedCountry ?? Location(name: "Denpasar", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Makassar", utcInformation:"", isCity: true), location)
+                    timePickerViewModel.saveDestinationTime(userDefaultsManager.selectedCountry ?? Location(name: "Denpasar", country: "Indonesia", image:"", timezoneIdentifier: "Asia/Makassar", utcInformation:"", isCity: true), location)
                     isPickerPresented = false
                     
                 }) {
@@ -209,7 +227,7 @@ struct TimePickerView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.blue)
+                        .background(Color("primeColor"))
                         .cornerRadius(10)
                         .padding(.horizontal)
                 }

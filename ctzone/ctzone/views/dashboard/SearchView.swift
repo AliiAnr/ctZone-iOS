@@ -20,9 +20,15 @@ struct SearchView: View {
     var body: some View {
         VStack {
             // **Search Bar Tetap di Atas**        VStack{
-            Text("KOAWKOWAOW")
-                .padding(.vertical)
-            SearchBarView(searchText: $locationViewModel.searchText)
+            Text("Search")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.top, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+            
+            
+            SearchBarView(searchText: $locationViewModel.searchText).padding(.top, -15)
             
             // **ScrollView untuk LazyVStack**
             ScrollView {
@@ -41,12 +47,13 @@ struct SearchView: View {
                         }) {
                             VStack {
                                 HStack {
-                                    VStack(alignment: .leading) {
+                                    VStack(alignment: .leading, spacing : 2) {
                                         Text(location.name)
                                             .font(.headline)
-                                            .foregroundColor(.black)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(Color(UIColor.label))
                                         
-                                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat, date: timeViewModel.currentDate)
+                                        let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
                                         
                                         HStack(spacing: 2) {
                                             // Menampilkan waktu
@@ -57,8 +64,9 @@ struct SearchView: View {
                                             // Menampilkan AM/PM jika ada
                                             if let amPm = timeInfo.amPm {
                                                 Text("\(amPm)")
-                                                    .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
-                                                    .foregroundColor(.blue)  // Warna AM/PM
+                                                    .font(.caption)
+                                                    .fontWeight(.light)// Styling untuk AM/PM
+                                                    .foregroundColor(.gray)  // Warna AM/PM
                                             }
                                             
                                             // Menampilkan informasi UTC jika ada

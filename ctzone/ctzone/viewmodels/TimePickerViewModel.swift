@@ -61,6 +61,12 @@ class TimePickerViewModel: ObservableObject {
         tempDay = day
         tempMonth = month
         tempYear = year
+        
+//        print(formattedTime())
+//        print(formattedDate())
+//        
+//        print(formattedDestinationDate())
+//        print(formattedDestinationTime())
     }
 
     /// **Mengupdate waktu sesuai dengan lokasi yang dipilih**

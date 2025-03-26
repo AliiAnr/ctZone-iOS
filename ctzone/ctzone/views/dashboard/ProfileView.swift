@@ -15,8 +15,14 @@ struct ProfileView: View {
     var body: some View {
         VStack{
             
-            Text("KOAWKOWAOW")
-                .padding(.vertical)
+            Text("Profile")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.top, 6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+            
+            
             ZStack {
                 
                 Color(UIColor.systemBackground)
@@ -26,6 +32,7 @@ struct ProfileView: View {
                     HStack{
                         Text("\(userDefaultsManager.selectedCountry?.name ?? "No Country Selected")")
                             .font(.system(size: 26, weight: .light))
+                            .foregroundColor(Color(UIColor.label))
                         Spacer()
                         Image(userDefaultsManager.selectedCountry?.image ?? "Flag_of_Indonesia")
                             .resizable()
@@ -69,12 +76,13 @@ struct ProfileView: View {
                 .onAppear{
                     is24HourFormat = userDefaultsManager.use24HourFormat
                 }
-                .padding()
+                .padding(.horizontal)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .sheet(isPresented: $isSheetPresented) {
-                    CountrySelectionSheet(isPresented: $isSheetPresented, locationViewModel: locationViewModel, is24HourFormat: $is24HourFormat)
+                    CountrySelectionSheet(isPresented: $isSheetPresented, is24HourFormat: $is24HourFormat)
                 }
             }
+            .padding(.top,-6)
         }
     }
 }
@@ -83,7 +91,7 @@ struct CountrySelectionSheet: View {
     @Binding var isPresented: Bool
 //    @ObservedObject var viewModel: ProfileViewModel
     @EnvironmentObject var timeViewModel: TimeViewModel
-    @ObservedObject var locationViewModel: LocationViewModel
+    @EnvironmentObject var locationViewModel: LocationViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
     
     @Binding var is24HourFormat: Bool
@@ -94,12 +102,12 @@ struct CountrySelectionSheet: View {
         NavigationStack {
             VStack {
                 // **Search Bar**
-                SearchBarView(searchText:$locationViewModel.searchText)
+                SearchBarView(searchText:$locationViewModel.searchProfileText)
                 
                 //                 **List Negara dengan LazyVStack**
                 ScrollView {
                     LazyVStack {
-                        ForEach(locationViewModel.filteredCountries) { location in
+                        ForEach(locationViewModel.filteredProfileCountries) { location in
                             
                             
                             Button(action: {
@@ -111,9 +119,10 @@ struct CountrySelectionSheet: View {
                                         VStack(alignment: .leading) {
                                             Text(location.name)
                                                 .font(.headline)
-                                                .foregroundColor(.black)
+                                                .fontWeight(.medium)
+                                                .foregroundColor(Color(UIColor.label))
                                             
-                                            let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat, date: timeViewModel.currentDate)
+                                            let timeInfo = location.currentTimeFormat(is24HourFormat: is24HourFormat)
                                             
                                             HStack(spacing: 2) {
                                                 // Menampilkan waktu
@@ -124,8 +133,9 @@ struct CountrySelectionSheet: View {
                                                 // Menampilkan AM/PM jika ada
                                                 if let amPm = timeInfo.amPm {
                                                     Text("\(amPm)")
-                                                        .font(.system(size: 12, weight: .light))  // Styling untuk AM/PM
-                                                        .foregroundColor(.blue)  // Warna AM/PM
+                                                        .font(.caption)
+                                                        .fontWeight(.light)// Styling untuk AM/PM
+                                                        .foregroundColor(.gray)  // Warna AM/PM
                                                 }
                                                 
                                                 // Menampilkan informasi UTC jika ada

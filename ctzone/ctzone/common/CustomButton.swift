@@ -12,14 +12,13 @@ struct CustomButton: View {
         }
         ) {
             Text(text)
-
+            
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(Color.blue)
+                .background(Color("primeColor"))
                 .foregroundColor(.white)
                 .cornerRadius(10)
-                .padding(.horizontal)
         }
         .buttonStyle(.plain)
         

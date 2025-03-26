@@ -8,19 +8,23 @@
 import SwiftUI
 
 struct OnBoarding1View: View {
+    @Binding var showOnboarding: Bool
     @State private var isSheetPresented = false
-    @StateObject private var viewModel = ProfileViewModel()
+//    @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    @EnvironmentObject var timeViewModel: TimeViewModel
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    @EnvironmentObject var navigationController: NavigationViewModel
     
     var body: some View {
         VStack{
-            Image("On_Boarding_Image")
+            Image("onBoardHeader")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 300, height: 300)
                 .foregroundColor(.red)
             
-            Text("Choose your country")
+            Text("Choose Your Location")
                 .bold()
                 .font(.system(size: 24))
                 .padding(.vertical)
@@ -30,21 +34,23 @@ struct OnBoarding1View: View {
             }) {
                 VStack(spacing: 20) {
                     HStack{
-                        Text("\(userDefaultsManager.selectedCountry?.name ?? "Select Country")")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle((userDefaultsManager.selectedCountry?.name ?? "Select Country") == "Select Country" ? .gray : .black)
+                        Text("\(userDefaultsManager.selectedCountry?.name ?? "Select Location")")
+                            .font(.system(size: 26, weight: .light))
+                            .foregroundColor(Color(UIColor.label))
                         Spacer()
-                        Image(userDefaultsManager.selectedCountry?.image ?? "")
-                            .resizable()
-                            .scaledToFit()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 35, height: 35)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.black.opacity(0.2))
-                                    .blur(radius: 2)
-                            )
+                        if (userDefaultsManager.selectedCountry?.image ?? "") != "" {
+                            Image(userDefaultsManager.selectedCountry?.image ?? "")
+                                .resizable()
+                                .scaledToFit()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 35, height: 35)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.black.opacity(0.2))
+                                        .blur(radius: 2)
+                                )
+                        }
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
@@ -55,13 +61,18 @@ struct OnBoarding1View: View {
                     
                    
                     }
-            }.sheet(isPresented: $isSheetPresented) {
-                CountrySelectionSheets(isPresented: $isSheetPresented, viewModel: viewModel)
+            }
+        .sheet(isPresented: $isSheetPresented) {
+                CountrySelectionSheets(isPresented: $isSheetPresented)
 
             
         }
         Button(action: {
-            //action()
+            if userDefaultsManager.selectedCountry != nil {
+                                withAnimation {
+                                    showOnboarding = false
+                                }
+                            }
         }
         ) {
             Text("Get Started")
@@ -69,11 +80,13 @@ struct OnBoarding1View: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .foregroundColor((userDefaultsManager.selectedCountry?.name ?? "Select Country") == "Select Country" ? .gray : .white)
-                .background((userDefaultsManager.selectedCountry?.name ?? "Select Country") == "Select Country" ? Color(UIColor.systemGray6) : .blue)
+                .foregroundColor((userDefaultsManager.selectedCountry?.name ?? "Select Location") == "Select Location" ? .gray : .white)
+                .background((userDefaultsManager.selectedCountry?.name ?? "Select Location") == "Select Location" ? Color(UIColor.systemGray6) : Color("primeColor"))
                 .cornerRadius(10)
                 
+            
         }
+        .disabled(userDefaultsManager.selectedCountry == nil)
         .buttonStyle(.plain)
         .padding(.horizontal)
     }
@@ -81,8 +94,10 @@ struct OnBoarding1View: View {
 
 struct CountrySelectionSheets: View {
     @Binding var isPresented: Bool
-    @ObservedObject var viewModel: ProfileViewModel
     @EnvironmentObject var userDefaultsManager: UserDefaultsManager
+    @EnvironmentObject var timeViewModel: TimeViewModel
+    @EnvironmentObject var locationViewModel: LocationViewModel
+    @EnvironmentObject var navigationController: NavigationViewModel
     
     @State private var is24HourFormat: Bool = false
 
@@ -91,12 +106,12 @@ struct CountrySelectionSheets: View {
         NavigationStack {
             VStack {
                 // **Search Bar**
-                SearchBarView(searchText:$viewModel.searchText)
+                SearchBarView(searchText:$locationViewModel.searchProfileText)
                 
 //                 **List Negara dengan LazyVStack**
                 ScrollView {
                     LazyVStack {
-                        ForEach(viewModel.filteredCountries) { location in
+                        ForEach(locationViewModel.filteredProfileCountries) { location in
                             
                             
                             Button(action: {
@@ -109,7 +124,8 @@ struct CountrySelectionSheets: View {
                                         VStack(alignment: .leading) {
                                             Text(location.name)
                                                 .font(.headline)
-                                                .foregroundColor(.black)
+                                                .fontWeight(.medium)
+                                                .foregroundColor(Color(UIColor.label))
                                                
                                         }
                                         .padding(.vertical, 5)
@@ -148,8 +164,11 @@ struct CountrySelectionSheets: View {
     }
 }
 
-#Preview {
-    OnBoarding1View()
-        .environmentObject(UserDefaultsManager.shared)
-}
+//#Preview {
+//    OnBoarding1View()
+//        .environmentObject(UserDefaultsManager.shared)
+//        .environmentObject(Injection.shared.locationViewModel)
+//        .environmentObject(NavigationViewModel())
+//        .environmentObject(TimeViewModel())
+//}
 
