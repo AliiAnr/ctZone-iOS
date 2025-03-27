@@ -320,7 +320,7 @@ private struct ReminderRow: View {
                 let timeInfo = reminder.currentFormattedTime(is24HourFormat: is24HourFormat)
                 let cDateInfo = reminder.currentFormattedDate()
                 
-                let desInfo = reminder.currentFormattedTime(is24HourFormat: is24HourFormat)
+                let desInfo = reminder.destinationFormattedTime(is24HourFormat: is24HourFormat)
                 let dDateInfo = reminder.destinationFormattedDate()
                 VStack(alignment: .leading) {
                     HStack (alignment: .bottom, spacing: 2){
