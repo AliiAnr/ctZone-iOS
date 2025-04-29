@@ -1,76 +1,110 @@
-import SwiftUI
+import Foundation
+import Combine
 
-class UserDefaultsManager: ObservableObject {
+final class UserDefaultsManager: ObservableObject {
     static let shared = UserDefaultsManager()
-
+    
     private let defaults = UserDefaults.standard
-    private let use24HourKey = "use24HourFormat"
-    private let selectedCountryKey = "selectedCountry"
-    private let selectedDateKey = "selectedDate"
-
-    @Published var use24HourFormat: Bool {
-        didSet {
-            defaults.set(use24HourFormat, forKey: use24HourKey)
-        }
-    }
-
-    @Published var selectedCountry: Country? {
-        didSet {
-            saveSelectedCountry()
-        }
-    }
-
-    @Published var selectedDate: String {
-        didSet {
-            defaults.set(selectedDate, forKey: selectedDateKey)
-        }
-    }
-
-    private init() {
-        self.use24HourFormat = defaults.bool(forKey: use24HourKey)
-        self.selectedCountry = Self.loadSelectedCountry()
-        self.selectedDate = defaults.string(forKey: selectedDateKey) ?? Self.getCurrentDate()
-    }
-
-    // **Menyimpan negara yang dipilih user ke UserDefaults**
+    
+    private enum Keys {
+           static let use24HourFormat = "use24HourFormat"
+           static let selectedCountry = "selectedCountry"
+           static let selectedDate = "selectedDate"
+       }
+       
+       @Published var use24HourFormat: Bool {
+           didSet {
+               defaults.set(use24HourFormat, forKey: Keys.use24HourFormat)
+           }
+       }
+       
+       @Published var selectedCountry: Location? {
+           didSet {
+               saveSelectedCountry()
+               updateDateBasedOnSelectedLocation()
+           }
+       }
+       
+       @Published var selectedDate: String {
+           didSet {
+               defaults.set(selectedDate, forKey: Keys.selectedDate)
+           }
+       }
+       
+       private init() {
+           self.use24HourFormat = defaults.bool(forKey: Keys.use24HourFormat)
+           self.selectedCountry = Self.loadSelectedCountry(from: defaults)
+           self.selectedDate = defaults.string(forKey: Keys.selectedDate) ?? Self.getCurrentDate()
+       }
+    
     private func saveSelectedCountry() {
-        if let country = selectedCountry {
-            if let encoded = try? JSONEncoder().encode(country) {
-                defaults.set(encoded, forKey: selectedCountryKey)
-            }
-        } else {
-            defaults.removeObject(forKey: selectedCountryKey) // Hapus jika nil
+        guard let country = selectedCountry else {
+            defaults.removeObject(forKey: Keys.selectedCountry)
+            print("Lokasi dihapus dari UserDefaults")
+            return
+        }
+        
+        do {
+            let encoded = try JSONEncoder().encode(country)
+            defaults.set(encoded, forKey: Keys.selectedCountry)
+            print("✅ Berhasil menyimpan lokasi: \(country)")
+        } catch {
+            print("❌ Gagal encoding lokasi: \(error)")
         }
     }
-
-    // **Memuat negara yang dipilih dari UserDefaults**
-    private static func loadSelectedCountry() -> Country? {
-        guard let data = UserDefaults.standard.data(forKey: "selectedCountry"),
-              let decoded = try? JSONDecoder().decode(Country.self, from: data) else {
+    
+    private static func loadSelectedCountry(from defaults: UserDefaults) -> Location? {
+        guard let data = defaults.data(forKey: Keys.selectedCountry) else {
+            print("Tidak ada data lokasi tersimpan")
             return nil
         }
-        return decoded
+        
+        do {
+            let decoded = try JSONDecoder().decode(Location.self, from: data)
+            print("Berhasil memuat lokasi dari UserDefaults: \(decoded)")
+            return decoded
+        } catch {
+            print("Gagal decoding lokasi: \(error)")
+            return nil
+        }
     }
-
-    // **Mengatur negara yang dipilih user**
-    func setSelectedCountry(_ country: Country) {
+    
+    func setSelectedCountry(_ country: Location) {
+        print("🟡 Mengubah selectedCountry menjadi \(country)")
         selectedCountry = country
     }
-
-    // **Menghapus negara yang dipilih user**
+    
     func clearSelectedCountry() {
         selectedCountry = nil
     }
-
-    // **Fungsi untuk mendapatkan tanggal saat ini dalam format dd-MM-yyyy**
+    
     private static func getCurrentDate() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd-MM-yyyy"
         return formatter.string(from: Date())
     }
-
-    // **Mengupdate tanggal ke tanggal saat ini**
+    
     func updateCurrentDate() {
         selectedDate = Self.getCurrentDate()
+    }
+
+    func updateDateBasedOnSelectedLocation() {
+        guard let location = selectedCountry, let timeZone = location.timeZone else {
+            print("Lokasi tidak tersedia atau timezone tidak valid, gunakan tanggal default")
+            updateCurrentDate()
+            return
+        }
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd-MM-yyyy"
+        formatter.timeZone = timeZone
+        selectedDate = formatter.string(from: Date())
+        print("✅ Tanggal diperbarui sesuai lokasi \(location.name): \(selectedDate)")
+    }
+    
+    func resetUserDefaults() {
+        for key in defaults.dictionaryRepresentation().keys {
+            defaults.removeObject(forKey: key)
+        }
     }
 }

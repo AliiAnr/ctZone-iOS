@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D81" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="LocationEntity" representedClassName="LocationEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="country" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
+        <attribute name="isCity" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isPinned" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="timezoneIdentifier" optional="YES" attributeType="String"/>
+        <attribute name="utcInformation" optional="YES" attributeType="String"/>
+        <relationship name="reminderEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ReminderEntity" inverseName="locationEntity" inverseEntity="ReminderEntity"/>
+    </entity>
+    <entity name="ReminderEntity" representedClassName="ReminderEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="currentCountry" optional="YES" attributeType="String"/>
+        <attribute name="currentDay" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentHour" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentImage" optional="YES" attributeType="String"/>
+        <attribute name="currentMinute" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentMonth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentName" optional="YES" attributeType="String"/>
+        <attribute name="currentTimezone" optional="YES" attributeType="String"/>
+        <attribute name="currentUtc" optional="YES" attributeType="String"/>
+        <attribute name="currentYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="desc" optional="YES" attributeType="String"/>
+        <attribute name="destinationCountry" optional="YES" attributeType="String"/>
+        <attribute name="destinationDay" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="destinationHour" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="destinationImage" optional="YES" attributeType="String"/>
+        <attribute name="destinationMinute" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="destinationMonth" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="destinationName" optional="YES" attributeType="String"/>
+        <attribute name="destinationTimezone" optional="YES" attributeType="String"/>
+        <attribute name="destinationUtc" optional="YES" attributeType="String"/>
+        <attribute name="destinationYear" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="locationEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocationEntity" inverseName="reminderEntity" inverseEntity="LocationEntity"/>
+    </entity>
+</model>
