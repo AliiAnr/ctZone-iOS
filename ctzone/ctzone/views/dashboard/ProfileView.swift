@@ -28,7 +28,7 @@ struct ProfileView: View {
                 VStack(spacing: 20) {
                     HStack{
                         Text("\(userDefaultsManager.selectedCountry?.name ?? "No Country Selected")")
-                            .font(.system(size: 26, weight: .light))
+                            .font(.system(.title, weight: .light))
                             .foregroundColor(Color(UIColor.label))
                         Spacer()
                         Image(userDefaultsManager.selectedCountry?.image ?? "Flag_of_Indonesia")

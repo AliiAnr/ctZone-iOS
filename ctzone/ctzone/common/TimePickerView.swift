@@ -23,17 +23,18 @@ struct TimePickerView: View {
                             HStack(alignment: .bottom, spacing: 5) {
                                 Text(formattedTime.hourMinute)
                                     .font(.system(size: 44, weight: .light))
+                                    .dynamicTypeSize(.large ... .accessibility5)
                                     .foregroundColor(Color(UIColor.label))
                                 
                         
                                 if let amPm = formattedTime.amPm {
                                     Text(amPm)
-                                        .font(.system(size: 20, weight: .light))                             .foregroundColor(Color(UIColor.label))
+                                        .font(.system(.title3, weight: .light))                             .foregroundColor(Color(UIColor.label))
                                         .baselineOffset(5)
                                 }
                             }
                             Text("\(timePickerViewModel.formattedDate()), \(userDefaultsManager.selectedCountry?.utcInformation ?? "UTC+0")")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(.subheadline, weight: .semibold))
                                 .foregroundColor(.gray)
                         }
                         .padding(15)
@@ -51,17 +52,18 @@ struct TimePickerView: View {
 
                         Text(formattedDestinationTime.hourMinute)
                             .font(.system(size: 44, weight: .light))
+                            .dynamicTypeSize(.large ... .accessibility5)
                             .foregroundColor(Color(UIColor.label))
                         
                         if let amPm = formattedDestinationTime.amPm {
                             Text(amPm)
-                                .font(.system(size: 20, weight: .light))                                .foregroundColor(Color(UIColor.label))
+                                .font(.system(.title3, weight: .light))                                .foregroundColor(Color(UIColor.label))
                                 .baselineOffset(5)
                         }
                     }
                         
                     Text("\(timePickerViewModel.formattedDestinationDate()), \(location.utcInformation ?? "UTC+0")")
-                            .font(.system(size: 14, weight: .semibold))
+                        .font(.system(.subheadline, weight: .semibold))
                             .foregroundColor(.gray)
                         
                 }

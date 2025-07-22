@@ -25,7 +25,7 @@ struct OnBoarding1View: View {
             
             Text("Choose Your Location")
                 .bold()
-                .font(.system(size: 24))
+                .font(.system(.title2))
                 .padding(.vertical)
             Button(action: {
                 isSheetPresented.toggle()
@@ -33,7 +33,7 @@ struct OnBoarding1View: View {
                 VStack(spacing: 20) {
                     HStack{
                         Text("\(userDefaultsManager.selectedCountry?.name ?? "Select Location")")
-                            .font(.system(size: 26, weight: .light))
+                            .font(.system(.title, weight: .light))
                             .foregroundColor(Color(UIColor.label))
                         Spacer()
                         if (userDefaultsManager.selectedCountry?.image ?? "") != "" {

@@ -41,7 +41,7 @@ struct HomeView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .font(.system(size: 28))
+                        .font(.system(.title))
                         .foregroundColor(Color("primeColor"))
                         .contentShape(Rectangle())
                 }
@@ -106,7 +106,7 @@ struct EmptyValue : View {
                 .opacity(0.5)
                 .frame(width: 170, height: 170)
             Text("Go pin a location and they will show up here")
-                .font(.system(size: 20, weight: .light))
+                .font(.system(.title3, weight: .light))
                 .opacity(0.5)
                 .padding(.top, 10)
                 .foregroundColor(Color("text/body"))
@@ -229,6 +229,7 @@ private struct PinnedSection: View {
                         HStack(spacing: 2) {
                             Text(timeInfo.hourMinute)
                                 .font(.system(size: 44, weight: .light))
+                                .dynamicTypeSize(.large ... .accessibility5)
                                 .foregroundColor(Color(UIColor.label))
                             if let amPm = timeInfo.amPm {
                                 Text(amPm)

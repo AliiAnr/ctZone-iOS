@@ -151,7 +151,7 @@ private struct DescriptionInputView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Description (optional)")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(.callout, weight: .semibold))
                 .foregroundColor(.gray)
             
             ZStack(alignment: .topLeading) {
@@ -199,7 +199,7 @@ struct DescriptionSheet: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Description (optional)")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(.callout, weight: .semibold))
                     .foregroundColor(.gray)
                     .padding(.top, 50)
                     .padding(.horizontal)
